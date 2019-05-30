@@ -215,7 +215,7 @@ function createWindow () {
   win.webContents.session.webRequest.onBeforeRequest(['*'], (details, callback) => {
     ////console.log('onBeforeRequest details', details.url.split("?")[0]);
     const { url } = details;
-    if(url == "https://music.youtube.com/s/music/2e3616b2/music_polymer.js") {
+    if(url.split("/")[url.split("/").length - 1] == "music_polymer.js") {
       //console.log(__dirname)
       const localURL = "http://localhost:59292/buggedPolymer.js"
 
