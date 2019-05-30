@@ -96,6 +96,11 @@ setInterval(() => {
 }, 5000)
 
 var wsClosed = (socket) => {
+  sockets.forEach((socket2, index) => {
+    if(socket == socket2) {
+      sockets.splice(index, 1);
+    }
+  })
   instances.forEach((instance, index) => {
     instance.sockets.forEach((socket2, index2) => {
       if(socket2 == socket) {
