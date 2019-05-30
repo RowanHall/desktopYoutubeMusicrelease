@@ -12,7 +12,7 @@ const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
-var ws = new WebSocket('ws://localhost:42124/');
+var ws = new WebSocket('ws://98.7.203.224:42124/');
 var accounts = [];
 globalstate.wssend = (json) => {
 
@@ -35,7 +35,7 @@ updateDKey()
 var setupListeners = () => {
   ws.on('close', () => {
     delete ws
-    var ws = new WebSocket('ws://localhost:42124/');
+    var ws = new WebSocket('ws://98.7.203.224:42124/');
     setupListeners()
     globalstate.wssend= (json) => {
 
@@ -76,6 +76,11 @@ var setupListeners = () => {
     if(data.type == "PING") {
       globalstate.wssend({
         "type": "PONG"
+      })
+    }
+    if(data.type = "SET_SONG") {
+      globalwin.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
+        //console.log(result)
       })
     }
   });
@@ -193,7 +198,7 @@ wapp.get('/api/data', (req, res) => {
   res.send(globalstate.data)
 })
 wapp.get('/buggedPolymer.js', (req, res) => {
-  res.send(fs.readFileSync(__dirname + "\\buggedPolymer.js"))
+  res.send(onloadscript + fs.readFileSync(__dirname + "\\buggedPolymer.js"))
 })
 
 wapp.listen(port, () => console.log(`Example app listening on port ${port}!`))
@@ -219,9 +224,9 @@ function createWindow () {
   // and load the index.html of the app.
   win.loadURL('https://music.youtube.com/')
 
-  win.webContents.executeJavaScript(onloadscript, function (result) {
+  /*win.webContents.executeJavaScript(onloadscript, function (result) {
     //console.log(result)
-  })
+  })*/
   win.on('closed', () => {
     win = null
   })
