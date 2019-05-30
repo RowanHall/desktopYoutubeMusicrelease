@@ -40045,6 +40045,7 @@ Polymer({
       this.playerController = b;
       this.playerUiService = c;
       this.store = d;
+      window._ga_ = this;
       a = by();
       a = a.shouldGenerateHistoryEntry() ? a : ay();
       this.updateHistoryForEndpoint(a, !0);

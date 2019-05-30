@@ -7,7 +7,17 @@ const path = require('path');
 const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
-
+const WebSocket = require('ws');
+const ws = new WebSocket('ws://98.7.203.224:42124/');
+var accounts = [];
+var wssend= (json) => {
+  
+}
+ws.on('open', function open() {
+  wssend= (json) => {
+    ws.send(JSON.stringify(json))
+  }
+});
 
 client.on('joinRequest', (data1, data2) => {
   console.log("RECIEVED JOINREQUEST FROM D_RPC", data1, data2)
@@ -20,10 +30,21 @@ client.on('join', (data1, data2) => {
   console.log("RECIEVED JOIN FROM D_RPC", data1)
 })
 
-ipcMain.on('ipcrejection', (userraw) => {
+ipcMain.on('ipcacception', (userraw) => {
+  wssend({
+    "type": "AUTH",
+    "authentication": {
+      "kind": "token",
+      "Dkey": "ExampleDkey",
+      "token": "ExampleToken"
+    },
+    "user": {
+      
+    }
+  })
   client.reply(userraw, 'YES');
 })
-ipcMain.on('ipcacception', (userraw) => {
+ipcMain.on('ipcrejection', (userraw) => {
   client.reply(userraw, 'IGNORE');
 })
 
@@ -184,6 +205,10 @@ ipcMain.on('pausedupdate', (sender, a) => {
     globalstate.data.listeningData.isPaused = a
     globalstate.emitter.emit("playpauseToggled")
   }
+})
+
+ipcMain.on('accountDetails', (sender, a) => {
+  accounts = JSON.parse(a);
 })
 
 ipcMain.on('watchingUpdate', (sender, a) => {

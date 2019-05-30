@@ -10,6 +10,7 @@ my_awesome_script.setAttribute('src',"https://cdn.jsdelivr.net/npm/sweetalert2@8
 
 document.head.appendChild(my_awesome_script);
 const { remote } = require('electron')
+const ws = require('ws')
 const ipc = require('electron').ipcRenderer
 var oldwatching = {};
 var injectedSettings = false;
@@ -39,6 +40,7 @@ setInterval(() => {
   ipc.send('watchingUpdate', JSON.stringify(watching))
   ipc.send('locupdate', document.location.href)
   ipc.send('pausedupdate', (!(document.getElementById('play-pause-button').title.toLowerCase() == 'pause')))
+  ipc.send('accountDetails', JSON.stringify(yt.config_.ACCOUNTS))
   pluginEvent = (eventName, data) => {
     plugins.forEach(plugin => {
       try {
