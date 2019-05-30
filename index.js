@@ -82,7 +82,7 @@ var setupListeners = () => {
 }
 setupListeners()
 
-setInterval(updateDKey, 10000)
+setInterval(updateDKey, 60000)
 
 
 
@@ -98,7 +98,14 @@ client.on('join', (data1, data2) => {
   console.log("RECIEVED JOIN FROM D_RPC", data1)
   globalstate.isHosting = false;
   globalstate.connectTo = data1
-  ws.close()
+  globalstate.wssend({
+    "type": "AUTH",
+    "authentication": {
+      "kind": "Dkey",
+      "Dkey": globalstate.connectTo
+    },
+    "user": accounts
+  })
 })
 
 ipcMain.on('ipcacception', (userraw) => {

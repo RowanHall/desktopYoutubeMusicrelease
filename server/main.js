@@ -14,7 +14,7 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     try {
     message = JSON.parse(message);
-      if(!(ws.selfauthenticated) && message.type == "AUTH") {
+      if(message.type == "AUTH") {
         if(message.authentication.kind == "token") {
           //we know this is the master.
           ws.selfauthenticated = true
@@ -29,6 +29,13 @@ wss.on('connection', function connection(ws) {
           ws.instance = instances[instances.length - 1]
         }
         if(message.authentication.kind == "Dkey") {
+          if(true) {
+            //clear old data
+            delete ws.type
+            delete ws.user
+            delete ws.instance
+            wsClosed(ws)
+          }
           //we know this is the client.
           ws.type = 0
           var parentSocket = "NOT FOUND"
@@ -42,7 +49,7 @@ wss.on('connection', function connection(ws) {
             ws.instance = parentSocket
             ws.user = message.user
             parentSocket.sockets.push(ws)
-            socket.send(JSON.stringify({
+            ws.send(JSON.stringify({
               "type": "SET_SONG",
               "close": false,
               "URL": parentSocket.songURL
@@ -80,7 +87,7 @@ wss.on('connection', function connection(ws) {
       "ERROR": String(err)
     }))
   }
-    
+
   });
 });
 
