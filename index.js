@@ -6,6 +6,7 @@ const { app, BrowserWindow, Menu, ipcMain, session } = require('electron')
 const notifier = require('node-notifier');
 const fs = require('fs');
 const tempDirectory = require('temp-dir');
+const randomstring = require('randomstring');
 const path = require('path');
 const request = require('request');
 const EventEmitter = require('events');
