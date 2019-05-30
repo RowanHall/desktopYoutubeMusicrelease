@@ -1,4 +1,5 @@
 try {
+  debugger;
 document.getElementsByClassName('center-content style-scope ytmusic-nav-bar')[0].style.webkitAppRegion = "drag"
 document.getElementsByClassName('right-content style-scope ytmusic-nav-bar')[0].style.webkitAppRegion = 'no-drag'
 document.getElementsByClassName('style-scope ytmusic-nav-bar')[7].style.webkitAppRegion = 'no-drag'
@@ -9,7 +10,6 @@ my_awesome_script.setAttribute('src',"https://cdn.jsdelivr.net/npm/sweetalert2@8
 
 document.head.appendChild(my_awesome_script);
 const { remote } = require('electron')
-document.head
 const ipc = require('electron').ipcRenderer
 var oldwatching = {};
 var injectedSettings = false;
@@ -96,21 +96,16 @@ var joinRequest = (user, userraw) => {
         'Accepted!',
         `${user} will start listening with you shortly.`,
         'success'
-      )
+      );
       ipc.send('ipcacception', userraw)
     } else if (
-      Swal.fire(
-        'Rejected.',
-        `Your rejected ${user}'s invite.`,
-        'error'
-      )
-      ipc.send('ipcrejection', userraw)
+      true
     ) {
       Swal.fire(
         'Rejected.',
         `Your rejected ${user}'s invite.`,
         'error'
-      )
+      );
       ipc.send('ipcrejection', userraw)
     }
   })
