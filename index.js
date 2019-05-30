@@ -79,7 +79,7 @@ var setupListeners = () => {
       })
     }
     if(data.type = "SET_SONG") {
-      win.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
+      globalwin.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
         //console.log(result)
       })
     }
