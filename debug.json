@@ -1,0 +1,17 @@
+{
+  "openPopupAction": {
+    "popupType": "TOAST",
+    "popup": {
+      "notificationActionRenderer": {
+        "responseText": {
+          "runs": [
+            {
+              "text": "SomeText0"
+            }
+          ]
+        },
+        "trackingParams": ""
+      }
+    }
+  }
+}

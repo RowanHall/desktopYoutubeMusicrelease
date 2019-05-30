@@ -1,0 +1,40 @@
+{
+  "name": "desktopyoutubemusic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord-rich-presence": "0.0.8",
+    "discord-rpc": "^3.0.1",
+    "electron": "^5.0.2",
+    "express": "^4.17.0",
+    "fast-safe-stringify": "^2.0.6",
+    "iohook": "^0.4.5",
+    "node-notifier": "^5.4.0",
+    "temp-dir": "^2.0.0"
+  },
+  "iohook": {
+    "targets": [
+      "node-64",
+      "electron-69"
+    ],
+    "platforms": [
+      "win32",
+      "darwin",
+      "linux"
+    ],
+    "arches": [
+      "x64",
+      "ia32"
+    ]
+  },
+  "cmake-js": {
+    "runtime": "electron",
+    "runtimeVersion": "1.8.4"
+  }
+}
