@@ -18,12 +18,14 @@ window.onload =() => {
   var plugins;
   window.songStart = Date.now();
   window.inGroup = false;
+  ipc.send('pageload')
   setInterval(() => {
     try {
       var gawatching = window._ga_.navigator.playerController.playerApi.getPlayerResponse().videoDetails
     } catch(e) {
       var gawatching = {};
     }
+    try {
     var root = document.getElementsByClassName("middle-controls style-scope ytmusic-player-bar")[0]
     var watching = {};
     watching.icon = {};
@@ -48,7 +50,8 @@ window.onload =() => {
     watching.time.watched = _ga_.playerController.playerApi.getCurrentTime()
     watching.time.length = _ga_.playerController.playerApi.getDuration()
 
-    if(inGroup && Math.abs(Date.now() - (songStart + (watching.time.watched * 1000))) > 0.5) {
+    if(inGroup && Math.abs(Date.now() - (songStart + (watching.time.watched * 1000))) > 500) {
+      console.log(Math.abs(Date.now() - (songStart + (watching.time.watched * 1000))))
       _ga_.playerController.playerApi.seekTo((Date.now() - songStart) / 1000)
     }
 
@@ -56,6 +59,7 @@ window.onload =() => {
     ipc.send('watchingUpdate', JSON.stringify(watching))
     ipc.send('locupdate', document.location.href)
     ipc.send('pausedupdate', (!(document.getElementById('play-pause-button').title.toLowerCase() == 'pause')))
+  } catch(err) {}
     ipc.send('accountDetails', JSON.stringify(yt.config_.ACCOUNTS))
     pluginEvent = (eventName, data) => {
       plugins.forEach(plugin => {
@@ -96,7 +100,6 @@ window.onload =() => {
     plugins.forEach(plugin => {
       //init for each plugin
     })
-    ipc.send('pageload')
   } catch(err) {}
 
 

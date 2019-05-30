@@ -292,7 +292,15 @@ ipcMain.on('pausedupdate', (sender, a) => {
 })
 
 ipcMain.on('accountDetails', (sender, a) => {
-  accounts = JSON.parse(a);
+  var newaccounts = JSON.parse(a);
+  if(JSON.stringify(accounts) != JSON.stringify(newaccounts)) {
+    console.log(newaccounts)
+    globalstate.wssend({
+      'type': "UPDATE_USER",
+      'user': newaccounts
+    })
+    accounts = newaccounts
+  }
 })
 
 ipcMain.on('gawatchingUpdate', (sender, a) => {

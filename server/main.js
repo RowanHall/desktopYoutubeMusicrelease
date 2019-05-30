@@ -16,6 +16,13 @@ wss.on('connection', function connection(ws) {
     message = JSON.parse(message);
       if(message.type == "AUTH") {
         if(message.authentication.kind == "token") {
+          if(true) {
+            //clear old data
+            delete ws.type
+            delete ws.user
+            delete ws.instance
+            wsClosed(ws)
+          }
           //we know this is the master.
           ws.selfauthenticated = true
           ws.type = 1;
@@ -55,6 +62,18 @@ wss.on('connection', function connection(ws) {
               "URL": parentSocket.songURL,
               "songStart": parentSocket.songStart
             }))
+            parentSocket.masterws.send(JSON.stringify({
+              "type": "ACCOUNT_JOIN",
+              "close": false,
+              "user": ws.user
+            }))
+            parentSocket.sockets.forEach(ws2 => {
+              ws2.send(JSON.stringify({
+                "type": "ACCOUNT_JOIN",
+                "close": false,
+                "user": ws.user
+              }))
+            })
           } else {
             ws.send(JSON.stringify({
               "type": "ERROR",
@@ -78,6 +97,9 @@ wss.on('connection', function connection(ws) {
       }
       if(message.type == "UPDATE_DKEY" && ws.type == 1 && message.token == ws.instance.token) {
         ws.instance.Dkey = message.Dkey
+      }
+      if(message.type == "UPDATE_USER") {
+        ws.user = message.user
       }
       if(message.type == "PONG") {
         ws.lastPong = Date.now()
@@ -121,10 +143,29 @@ var wsClosed = (socket) => {
     instance.sockets.forEach((socket2, index2) => {
       if(socket2 == socket) {
         instances[index].sockets.splice(index2, 1);
+        instance.masterws.send(JSON.stringify({
+          "type": "ACCOUNT_LEAVE",
+          "close": false,
+          "user": socket.user
+        }))
+        instance.sockets.forEach(ws2 => {
+          ws2.send(JSON.stringify({
+            "type": "ACCOUNT_LEAVE",
+            "close": false,
+            "user": socket.user
+          }))
+        })
       }
     })
     if(instance.masterws == socket) {
       instances.splice(index, 1);
+      instance.sockets.forEach(ws2 => {
+        ws2.send(JSON.stringify({
+          "type": "DEAD_INSTANCE",
+          "close": false,
+          "user": socket.user
+        }))
+      })
     }
   })
 }
