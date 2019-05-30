@@ -10,13 +10,17 @@ my_awesome_script.setAttribute('src',"https://cdn.jsdelivr.net/npm/sweetalert2@8
 
 document.head.appendChild(my_awesome_script);
 const { remote } = require('electron')
-const ws = require('ws')
 const ipc = require('electron').ipcRenderer
 var oldwatching = {};
 var injectedSettings = false;
 var oldviewing
 var plugins;
 setInterval(() => {
+  try {
+    var gawatching = window._ga_.navigator.playerController.playerApi.getPlayerResponse().videoDetails
+  } catch(e) {
+    var gawatching = {};
+  }
   var root = document.getElementsByClassName("middle-controls style-scope ytmusic-player-bar")[0]
   var watching = {};
   watching.icon = {};
@@ -29,14 +33,19 @@ setInterval(() => {
   c.forEach(i => {
   	watching.authors.push({"name": i.innerText, "loc": i.href})
   })
+  if(watching.authors == []) {
+    watching.authors = watching.album;
+    watching.album = {}
+  }
   
   watching.meta = {}
   watching.meta.inFocus = document.hasFocus()
   var timestr = document.getElementsByClassName('time-info style-scope ytmusic-player-bar')[0].innerText.split(" / ")
   watching.time = {};
-  watching.time.watched = yt.util.activity.getTimeSinceActive()/1000
-  watching.time.length = (parseInt(timestr[1].split(":")[0])*60) + (parseInt(timestr[1].split(":")[1]))
+  watching.time.watched = _ga_.playerController.playerApi.getCurrentTime()
+  watching.time.length = _ga_.playerController.playerApi.getDuration()
   
+  ipc.send('gawatchingUpdate', JSON.stringify(gawatching))
   ipc.send('watchingUpdate', JSON.stringify(watching))
   ipc.send('locupdate', document.location.href)
   ipc.send('pausedupdate', (!(document.getElementById('play-pause-button').title.toLowerCase() == 'pause')))

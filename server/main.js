@@ -42,6 +42,11 @@ wss.on('connection', function connection(ws) {
             ws.instance = parentSocket
             ws.user = message.user
             parentSocket.sockets.push(ws)
+            socket.send(JSON.stringify({
+              "type": "SET_SONG",
+              "close": false,
+              "URL": parentSocket.songURL
+            }))
           } else {
             ws.send(JSON.stringify({
               "type": "ERROR",
@@ -52,6 +57,7 @@ wss.on('connection', function connection(ws) {
         }
       }
       if(message.type == "SET_SONG" && ws.type == 1 && message.token == ws.instance.token) {
+        ws.instance.songURL = message.songURL
         ws.instance.sockets.forEach(socket => {
           socket.send(JSON.stringify({
             "type": "SET_SONG",
@@ -61,8 +67,8 @@ wss.on('connection', function connection(ws) {
         })
       }
       if(message.type == "UPDATE_DKEY" && ws.type == 1 && message.token == ws.instance.token) {
-      ws.instance.Dkey = message.Dkey
-    }
+        ws.instance.Dkey = message.Dkey
+      }
       if(message.type == "PONG") {
         ws.lastPong = Date.now()
       }

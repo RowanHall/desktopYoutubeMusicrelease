@@ -1,4 +1,7 @@
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+
+var globalstate = {
+  'isHosting': true
+};
 const { app, BrowserWindow, Menu, ipcMain, session } = require('electron')
 const notifier = require('node-notifier');
 const fs = require('fs');
@@ -13,9 +16,50 @@ var accounts = [];
 var wssend= (json) => {
   
 }
+
+var updateDKey = () => {
+  globalstate.DKey = randomstring.generate();
+  wssend({
+    "type": "UPDATE_DKEY",
+    "token": globalstate.Token,
+    "Dkey": globalstate.DKey
+  })
+}
+globalstate.Token = randomstring.generate();
+updateDKey()
+
 ws.on('open', function open() {
   wssend= (json) => {
+    console.log("C --> S", json)
     ws.send(JSON.stringify(json))
+  }
+  if(globalstate.isHosting) {
+    wssend({
+      "type": "AUTH",
+      "authentication": {
+        "kind": "token",
+        "Dkey": globalstate.DKey,
+        "token": globalstate.Token
+      },
+      "user": accounts
+    })
+  }
+});
+
+ws.on('message', function message(data) {
+  var data = JSON.parse(data)
+  console.log("S --> C", data)
+  if(data.close) {
+    ws.terminate()
+    const ws = new WebSocket('ws://98.7.203.224:42124/');
+    var wssend= (json) => {
+      
+    }
+  }
+  if(data.type == "PING") {
+    wssend({
+      "type": "PONG"
+    })
   }
 });
 
@@ -28,20 +72,15 @@ client.on('joinRequest', (data1, data2) => {
 
 client.on('join', (data1, data2) => {
   console.log("RECIEVED JOIN FROM D_RPC", data1)
+  globalstate.isHosting = false;
+  ws.terminate()
+  const ws = new WebSocket('ws://98.7.203.224:42124/');
+  var wssend= (json) => {
+    
+  }
 })
 
 ipcMain.on('ipcacception', (userraw) => {
-  wssend({
-    "type": "AUTH",
-    "authentication": {
-      "kind": "token",
-      "Dkey": "ExampleDkey",
-      "token": "ExampleToken"
-    },
-    "user": {
-      
-    }
-  })
   client.reply(userraw, 'YES');
 })
 ipcMain.on('ipcrejection', (userraw) => {
@@ -51,7 +90,6 @@ ipcMain.on('ipcrejection', (userraw) => {
 
 class MediaEmitter extends EventEmitter {}
 class SocketEmitter extends EventEmitter {}
-var globalstate = {};
 globalstate.emitter = new MediaEmitter();
 globalstate.data = {
   isListening: false,
@@ -72,18 +110,18 @@ globalstate.data = {
 
 globalstate.updatePresence = () => {
   if((Date.now() - globalstate.data.lastUpdate) > globalstate.data.presenceLimit) {
-    console.log("updating presence")
+    //console.log("updating presence")
     globalstate.data.updatenext = false;
     client.updatePresence(globalstate.data.presenceData)
     globalstate.data.lastUpdate = Date.now()
   } else {
     globalstate.data.updatenext = true;
-    console.log("attemped to update presence, but ratelimited.", (Date.now() - globalstate.data.lastUpdate), globalstate.data.presenceLimit )
+    //console.log("attemped to update presence, but ratelimited.", (Date.now() - globalstate.data.lastUpdate), globalstate.data.presenceLimit )
   }
 }
 setInterval(() => {
   if(globalstate.data.updatenext && (Date.now() - globalstate.data.lastUpdate) > globalstate.data.presenceLimit) {
-    console.log("UPDATE QUEUE")
+    //console.log("UPDATE QUEUE")
     globalstate.updatePresence()
   }
 }, 60)
@@ -93,13 +131,13 @@ globalstate.updatePresence();
 
 const mediaEmitter = new MediaEmitter();
 const onloadscript = fs.readFileSync(__dirname + "\\inject.js", 'utf-8')
-console.log(onloadscript)
+//console.log(onloadscript)
 process.on('uncaughtException', function(error) {
-  console.log(error)
+  //console.log(error)
   showPopup("ERROR: " + String(error))
 });
 process.on('unhandledRejection', function(reason, p){
-  console.log(reason)
+  //console.log(reason)
   showPopup("ERROR: " + String(reason))
 });
 const express = require('express')
@@ -121,7 +159,7 @@ wapp.get('/buggedPolymer.js', (req, res) => {
   res.send(fs.readFileSync(__dirname + "\\buggedPolymer.js"))
 })
 
-wapp.listen(port, () => console.log(`Example app listening on port ${port}!`))
+wapp.listen(port, () => //console.log(`Example app listening on port ${port}!`))
 var globalwin;
 function createWindow () {
   // Create the browser window.
@@ -145,7 +183,7 @@ function createWindow () {
   win.loadURL('https://music.youtube.com/')
   
   win.webContents.executeJavaScript(onloadscript, function (result) {
-    console.log(result)
+    //console.log(result)
   })
   win.on('closed', () => {
     win = null
@@ -153,10 +191,10 @@ function createWindow () {
   
   
   win.webContents.session.webRequest.onBeforeRequest(['*'], (details, callback) => {
-    //console.log('onBeforeRequest details', details.url.split("?")[0]);
+    ////console.log('onBeforeRequest details', details.url.split("?")[0]);
     const { url } = details;
     if(url == "https://music.youtube.com/s/music/2e3616b2/music_polymer.js") {
-      console.log(__dirname)
+      //console.log(__dirname)
       const localURL = "http://localhost:59292/buggedPolymer.js"
     
       callback({
@@ -211,6 +249,11 @@ ipcMain.on('accountDetails', (sender, a) => {
   accounts = JSON.parse(a);
 })
 
+ipcMain.on('gawatchingUpdate', (sender, a) => {
+  var gawatching = JSON.parse(a)
+  globalstate.gawatching = gawatching
+})
+
 ipcMain.on('watchingUpdate', (sender, a) => {
 
   var overrideTime = false;
@@ -218,8 +261,9 @@ ipcMain.on('watchingUpdate', (sender, a) => {
   var watching = JSON.parse(a)
   
   if(lastwatching.title != watching.title) {
-    
-    
+    //console.log(globalstate.gawatching)
+    watching.videoId = globalstate.gawatching.videoId,
+    watching.views = globalstate.gawatching.viewCount
     globalstate.data.listeningData = {
       isPaused: false,
       watching: watching
@@ -237,7 +281,7 @@ ipcMain.on('watchingUpdate', (sender, a) => {
         })
         var str = a.length == 1 ? a[0] : [ a.slice(0, a.length - 1).join(", "), a[a.length - 1] ].join(" and ")
         stream.on('finish', () => {
-          //console.log("DOWNLOADED")
+          ////console.log("DOWNLOADED")
           notifier.notify({
             title: "Playing: " + watching.title,
             message: 'By: ' + str,
@@ -266,7 +310,7 @@ var pause = () => {
 
 
 var showPopup = (text) => {
-  console.log("popup", text)
+  //console.log("popup", text)
   globalwin.webContents.executeJavaScript(`nt(document.getElementsByTagName('ytmusic-app')[0], 'yt-open-popup-action', [{
     "openPopupAction": {
       "popupType": "TOAST",
@@ -304,11 +348,11 @@ process.stdin.pause()
 
 
 globalstate.emitter.on('LocationSwitch', () => {
-//  console.log("LOCATION CHANGED:", globalstate.data)
+//  //console.log("LOCATION CHANGED:", globalstate.data)
   pluginEvents('urlSwitch', globalstate.data)
 })
 globalstate.emitter.on('playpauseToggled', () => {
-  //console.log("PLAYPAUSETOGGLED:", globalstate.data)
+  ////console.log("PLAYPAUSETOGGLED:", globalstate.data)
   if(globalstate.data.listeningData.isPaused) {
     globalstate.data.presenceData.smallImageKey = "pause"
     globalstate.data.presenceData.startTimestamp = 0
@@ -324,7 +368,7 @@ globalstate.emitter.on('playpauseToggled', () => {
   globalstate.updatePresence();
 })
 globalstate.emitter.on('SongSwitch', () => {
-  //console.log("SONGSWITCH:", globalstate.data)
+  ////console.log("SONGSWITCH:", globalstate.data)
   globalstate.data.presenceData.details = "Listening to: " + globalstate.data.listeningData.watching.title
   var a = [];
   globalstate.data.listeningData.watching.authors.forEach(author => {
@@ -335,13 +379,18 @@ globalstate.emitter.on('SongSwitch', () => {
   globalstate.data.presenceData.startTimestamp = Date.now()
   globalstate.data.presenceData.endTimestamp = Date.now() + globalstate.data.listeningData.watching.time.length*1000
   globalstate.data.presenceData.smallImageKey = "play"
-  globalstate.data.presenceData.joinSecret = "SetJoinSecret @ " + Date.now()
+  globalstate.data.presenceData.joinSecret = globalstate.DKey
   globalstate.data.presenceData.partyId = "SetPartyID @ " + Date.now()
   globalstate.updatePresence();
   pluginEvents('songSwitch', globalstate.data)
+  wssend({
+    "type": "SET_SONG",
+    "token": globalstate.Token,
+    "songURL": globalstate.data.listeningData.watching.videoId
+  })
 })
 globalstate.emitter.on('TimeShift', () => {
-  //console.log("TIMESHIFT:", globalstate.data)
+  ////console.log("TIMESHIFT:", globalstate.data)
   globalstate.data.presenceData.startTimestamp = Date.now()
   globalstate.data.presenceData.endTimestamp = Date.now() + (globalstate.data.listeningData.watching.time.length*1000 - globalstate.data.listeningData.watching.time.watched*1000)
   pluginEvents('timeShift', globalstate.data)
