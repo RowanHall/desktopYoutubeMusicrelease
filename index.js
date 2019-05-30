@@ -159,7 +159,7 @@ wapp.get('/buggedPolymer.js', (req, res) => {
   res.send(fs.readFileSync(__dirname + "\\buggedPolymer.js"))
 })
 
-wapp.listen(port, () => //console.log(`Example app listening on port ${port}!`))
+wapp.listen(port, () => console.log(`Example app listening on port ${port}!`))
 var globalwin;
 function createWindow () {
   // Create the browser window.
