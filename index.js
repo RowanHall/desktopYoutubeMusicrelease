@@ -13,7 +13,6 @@ const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
 const ws = new WebSocket('ws://98.7.203.224:42124/');
-setupListeners()
 var accounts = [];
 globalstate.wssend = (json) => {
 
@@ -80,6 +79,7 @@ var setupListeners = () => {
     }
   });
 }
+setupListeners()
 
 setInterval(updateDKey, 10000)
 
