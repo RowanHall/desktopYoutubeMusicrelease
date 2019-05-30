@@ -14,6 +14,7 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     try {
     message = JSON.parse(message);
+    console.log(message.type)
       if(message.type == "AUTH") {
         if(message.authentication.kind == "token") {
           if(true) {
@@ -91,7 +92,7 @@ wss.on('connection', function connection(ws) {
             "type": "SET_SONG",
             "close": false,
             "URL": message.songURL,
-            "songStart": parentSocket.songStart
+            "songStart": message.songStart
           }))
         })
       }
