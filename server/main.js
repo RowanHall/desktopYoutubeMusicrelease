@@ -9,7 +9,7 @@ wss.on('connection', function connection(ws) {
   sockets.push(ws)
   ws.on('close', ()=>{
     wsClosed(ws)
-  }
+  })
   ws.on('message', function incoming(message) {
     try {
     message = JSON.parse(message);
