@@ -88,6 +88,7 @@ client.on('join', (data1, data2) => {
   console.log("RECIEVED JOIN FROM D_RPC", data1)
   globalstate.isHosting = false;
   globalstate.connectTo = data1
+  console.log(globalstate, "TERMINATING")
   ws.terminate()
   const ws = new WebSocket('ws://98.7.203.224:42124/');
   globalstate.wssend= (json) => {
