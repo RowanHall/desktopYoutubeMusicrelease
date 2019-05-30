@@ -52,7 +52,8 @@ wss.on('connection', function connection(ws) {
             ws.send(JSON.stringify({
               "type": "SET_SONG",
               "close": false,
-              "URL": parentSocket.songURL
+              "URL": parentSocket.songURL,
+              "songStart": parentSocket.songStart
             }))
           } else {
             ws.send(JSON.stringify({
@@ -65,11 +66,13 @@ wss.on('connection', function connection(ws) {
       }
       if(message.type == "SET_SONG" && ws.type == 1 && message.token == ws.instance.token) {
         ws.instance.songURL = message.songURL
+        ws.instance.songStart = Date.now()
         ws.instance.sockets.forEach(socket => {
           socket.send(JSON.stringify({
             "type": "SET_SONG",
             "close": false,
-            "URL": message.songURL
+            "URL": message.songURL,
+            "songStart": parentSocket.songStart
           }))
         })
       }

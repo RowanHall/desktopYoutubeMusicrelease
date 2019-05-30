@@ -79,6 +79,7 @@ var setupListeners = () => {
       })
     }
     if(data.type == "SET_SONG") {
+      globalstate.songStart = data.songStart
       globalwin.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
         //console.log(result)
       })
@@ -300,6 +301,12 @@ ipcMain.on('gawatchingUpdate', (sender, a) => {
 })
 
 ipcMain.on('pageload', () => {
+  if(!globalstate.isHosting) {
+    jsexecutewrapper(() => {
+      window.inGroup = true;
+      window.songStart = globalstate.songStart
+    })()
+  }
 })
 
 ipcMain.on('watchingUpdate', (sender, a) => {

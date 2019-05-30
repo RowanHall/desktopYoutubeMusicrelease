@@ -16,7 +16,8 @@ window.onload =() => {
   var injectedSettings = false;
   var oldviewing
   var plugins;
-  ipc.send('pageload')
+  window.songStart = Date.now();
+  window.inGroup = false;
   setInterval(() => {
     try {
       var gawatching = window._ga_.navigator.playerController.playerApi.getPlayerResponse().videoDetails
@@ -46,6 +47,10 @@ window.onload =() => {
     watching.time = {};
     watching.time.watched = _ga_.playerController.playerApi.getCurrentTime()
     watching.time.length = _ga_.playerController.playerApi.getDuration()
+
+    if(inGroup && Math.abs(Date.now() - (songStart + (watching.time.watched * 1000))) > 0.5) {
+      _ga_.playerController.playerApi.seekTo((Date.now() - songStart) / 1000)
+    }
 
     ipc.send('gawatchingUpdate', JSON.stringify(gawatching))
     ipc.send('watchingUpdate', JSON.stringify(watching))
@@ -91,6 +96,7 @@ window.onload =() => {
     plugins.forEach(plugin => {
       //init for each plugin
     })
+    ipc.send('pageload')
   } catch(err) {}
 
 
