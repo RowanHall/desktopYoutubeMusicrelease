@@ -12,35 +12,48 @@ const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
-const ws = new WebSocket('ws://98.7.203.224:42124/');
+const ws = new WebSocket('ws://localhost:42124/');
 var accounts = [];
-var wssend= (json) => {
-  
-}
+globalstate.wssend = (json) => {
 
+}
 var updateDKey = () => {
   globalstate.DKey = randomstring.generate();
-  wssend({
+  globalstate.wssend({
     "type": "UPDATE_DKEY",
     "token": globalstate.Token,
     "Dkey": globalstate.DKey
   })
+  try {
+    globalstate.data.presenceData.joinSecret = globalstate.DKey
+    globalstate.updatePresence()
+  } catch(err) {}
 }
 globalstate.Token = randomstring.generate();
 updateDKey()
 
+setInterval(updateDKey, 10000)
 ws.on('open', function open() {
-  wssend= (json) => {
+  globalstate.wssend = (json) => {
     console.log("C --> S", json)
     ws.send(JSON.stringify(json))
   }
   if(globalstate.isHosting) {
-    wssend({
+    globalstate.wssend({
       "type": "AUTH",
       "authentication": {
         "kind": "token",
         "Dkey": globalstate.DKey,
         "token": globalstate.Token
+      },
+      "user": accounts
+    })
+  } else {
+    globalstate.wssend({
+      "type": "AUTH",
+      "authentication": {
+        "kind": "token",
+        "Dkey": globalstate.connectTo
       },
       "user": accounts
     })
@@ -50,15 +63,15 @@ ws.on('open', function open() {
 ws.on('message', function message(data) {
   var data = JSON.parse(data)
   console.log("S --> C", data)
-  if(data.close) {
+  if(data.close != false) {
     ws.terminate()
     const ws = new WebSocket('ws://98.7.203.224:42124/');
-    var wssend= (json) => {
-      
+    globalstate.wssend= (json) => {
+
     }
   }
   if(data.type == "PING") {
-    wssend({
+    globalstate.wssend({
       "type": "PONG"
     })
   }
@@ -74,10 +87,11 @@ client.on('joinRequest', (data1, data2) => {
 client.on('join', (data1, data2) => {
   console.log("RECIEVED JOIN FROM D_RPC", data1)
   globalstate.isHosting = false;
+  globalstate.connectTo = data1
   ws.terminate()
   const ws = new WebSocket('ws://98.7.203.224:42124/');
-  var wssend= (json) => {
-    
+  globalstate.wssend= (json) => {
+
   }
 })
 
@@ -110,14 +124,16 @@ globalstate.data = {
 };
 
 globalstate.updatePresence = () => {
-  if((Date.now() - globalstate.data.lastUpdate) > globalstate.data.presenceLimit) {
-    //console.log("updating presence")
-    globalstate.data.updatenext = false;
-    client.updatePresence(globalstate.data.presenceData)
-    globalstate.data.lastUpdate = Date.now()
-  } else {
-    globalstate.data.updatenext = true;
-    //console.log("attemped to update presence, but ratelimited.", (Date.now() - globalstate.data.lastUpdate), globalstate.data.presenceLimit )
+  if(globalstate.data.presenceData) {
+    if((Date.now() - globalstate.data.lastUpdate) > globalstate.data.presenceLimit) {
+      //console.log("updating presence")
+      globalstate.data.updatenext = false;
+      client.updatePresence(globalstate.data.presenceData)
+      globalstate.data.lastUpdate = Date.now()
+    } else {
+      globalstate.data.updatenext = true;
+      //console.log("attemped to update presence, but ratelimited.", (Date.now() - globalstate.data.lastUpdate), globalstate.data.presenceLimit )
+    }
   }
 }
 setInterval(() => {
@@ -134,11 +150,11 @@ const mediaEmitter = new MediaEmitter();
 const onloadscript = fs.readFileSync(__dirname + "\\inject.js", 'utf-8')
 //console.log(onloadscript)
 process.on('uncaughtException', function(error) {
-  //console.log(error)
+  console.log(error)
   showPopup("ERROR: " + String(error))
 });
 process.on('unhandledRejection', function(reason, p){
-  //console.log(reason)
+  console.log(reason)
   showPopup("ERROR: " + String(reason))
 });
 const express = require('express')
@@ -182,26 +198,26 @@ function createWindow () {
 
   // and load the index.html of the app.
   win.loadURL('https://music.youtube.com/')
-  
+
   win.webContents.executeJavaScript(onloadscript, function (result) {
     //console.log(result)
   })
   win.on('closed', () => {
     win = null
   })
-  
-  
+
+
   win.webContents.session.webRequest.onBeforeRequest(['*'], (details, callback) => {
     ////console.log('onBeforeRequest details', details.url.split("?")[0]);
     const { url } = details;
     if(url == "https://music.youtube.com/s/music/2e3616b2/music_polymer.js") {
       //console.log(__dirname)
       const localURL = "http://localhost:59292/buggedPolymer.js"
-    
+
       callback({
         cancel: false,
         redirectURL: ( encodeURI(localURL ) ),
-        
+
       })
     } else {
       if(false) {
@@ -211,7 +227,7 @@ function createWindow () {
         })
       }
     }
-    
+
   });
 }
 
@@ -258,9 +274,9 @@ ipcMain.on('gawatchingUpdate', (sender, a) => {
 ipcMain.on('watchingUpdate', (sender, a) => {
 
   var overrideTime = false;
-  
+
   var watching = JSON.parse(a)
-  
+
   if(lastwatching.title != watching.title) {
     //console.log(globalstate.gawatching)
     watching.videoId = globalstate.gawatching.videoId,
@@ -272,7 +288,7 @@ ipcMain.on('watchingUpdate', (sender, a) => {
     globalstate.emitter.emit("SongSwitch")
     if(watching.title != '') {
       //new video
-      
+
       if(!watching.meta.inFocus) {
         //not in focus right now
         var stream = request(watching.icon.src.split('=')[0] + "=w240-h240-l90-rj").pipe(fs.createWriteStream(tempDirectory + "/VIDEO_IMG.jpg"))
@@ -290,7 +306,7 @@ ipcMain.on('watchingUpdate', (sender, a) => {
             sound: false // Only Notification Center or Windows Toasters
           })
         })
-        
+
       }
     }
     overrideTime = true;
@@ -305,7 +321,7 @@ ipcMain.on('watchingUpdate', (sender, a) => {
 })
 
 var pause = () => {
-  
+
 }
 
 
@@ -362,10 +378,10 @@ globalstate.emitter.on('playpauseToggled', () => {
     globalstate.data.presenceData.smallImageKey = "play"
     globalstate.data.presenceData.startTimestamp = Date.now()
     globalstate.data.presenceData.endTimestamp = Date.now() + (globalstate.data.listeningData.watching.time.length*1000 - globalstate.data.listeningData.watching.time.watched*1000)
-  
+
   }
   pluginEvents('pauseToggled', globalstate.data)
-  
+
   globalstate.updatePresence();
 })
 globalstate.emitter.on('SongSwitch', () => {
@@ -374,7 +390,7 @@ globalstate.emitter.on('SongSwitch', () => {
   var a = [];
   globalstate.data.listeningData.watching.authors.forEach(author => {
     a.push(author.name)
-  }) 
+  })
   var str = a.length == 1 ? a[0] : [ a.slice(0, a.length - 1).join(", "), a[a.length - 1] ].join(" and ")
   globalstate.data.presenceData.state = "By: " + str
   globalstate.data.presenceData.startTimestamp = Date.now()
@@ -384,7 +400,7 @@ globalstate.emitter.on('SongSwitch', () => {
   globalstate.data.presenceData.partyId = "SetPartyID @ " + Date.now()
   globalstate.updatePresence();
   pluginEvents('songSwitch', globalstate.data)
-  wssend({
+  globalstate.wssend({
     "type": "SET_SONG",
     "token": globalstate.Token,
     "songURL": globalstate.data.listeningData.watching.videoId
@@ -395,5 +411,5 @@ globalstate.emitter.on('TimeShift', () => {
   globalstate.data.presenceData.startTimestamp = Date.now()
   globalstate.data.presenceData.endTimestamp = Date.now() + (globalstate.data.listeningData.watching.time.length*1000 - globalstate.data.listeningData.watching.time.watched*1000)
   pluginEvents('timeShift', globalstate.data)
-  
+
 })
