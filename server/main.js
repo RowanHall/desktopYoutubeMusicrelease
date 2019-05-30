@@ -56,13 +56,6 @@ wss.on('connection', function connection(ws) {
             ws.selfauthenticated = true
             ws.instance = parentSocket
             ws.user = message.user
-            parentSocket.sockets.push(ws)
-            ws.send(JSON.stringify({
-              "type": "SET_SONG",
-              "close": false,
-              "URL": parentSocket.songURL,
-              "songStart": parentSocket.songStart
-            }))
             parentSocket.masterws.send(JSON.stringify({
               "type": "ACCOUNT_JOIN",
               "close": false,
@@ -75,6 +68,18 @@ wss.on('connection', function connection(ws) {
                 "user": ws.user
               }))
             })
+            parentSocket.sockets.push(ws)
+            var accounts = []
+            parentSocket.sockets.forEach(socket => {
+              accounts.push(socket.user)
+            })
+            ws.send(JSON.stringify({
+              "type": "SET_SONG",
+              "close": false,
+              "URL": parentSocket.songURL,
+              "songStart": parentSocket.songStart,
+              "accounts":accounts
+            }))
           } else {
             ws.send(JSON.stringify({
               "type": "ERROR",
@@ -92,7 +97,16 @@ wss.on('connection', function connection(ws) {
             "type": "SET_SONG",
             "close": false,
             "URL": message.songURL,
-            "songStart": message.songStart
+            "songStart": ws.instance.songStart
+          }))
+        })
+      }
+      if(message.type == "SET_PLAY_PAUSE" && ws.type == 1 && message.token == ws.instance.token) {
+        ws.instance.isPaused = (message.state == "pause")
+        ws.instance.sockets.forEach(socket => {
+          socket.send(JSON.stringify({
+            "type": "SET_PLAY_PAUSE",
+            "state": message.state
           }))
         })
       }
@@ -116,10 +130,6 @@ wss.on('connection', function connection(ws) {
 
   });
 });
-
-setInterval(() => {
-  console.log(instances)
-}, 1000)
 
 setInterval(() => {
   sockets.forEach(ws => {

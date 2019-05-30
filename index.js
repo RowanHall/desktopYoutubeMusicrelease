@@ -12,7 +12,7 @@ const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
-var ws = new WebSocket('ws://98.7.203.224:42124/');
+var ws = new WebSocket('ws://localhost:42124/');
 var accounts = [];
 globalstate.wssend = (json) => {
 
@@ -35,7 +35,7 @@ updateDKey()
 var setupListeners = () => {
   ws.on('close', () => {
     delete ws
-    var ws = new WebSocket('ws://98.7.203.224:42124/');
+    var ws = new WebSocket('ws://localhost:42124/');
     setupListeners()
     globalstate.wssend= (json) => {
 
@@ -105,6 +105,18 @@ var setupListeners = () => {
           globalstate.data.presenceData.joinSecret = globalstate.DKey
           globalstate.updatePresence()
         } catch(err) {}
+      }
+      if(data.type == "SET_PLAY_PAUSE") {
+        if(data.state == "play") {
+          jsexecutewrapper(() => {
+            _ga_.playerController.playerApi.playVideo()
+          })()
+        }
+        if(data.state == "pause") {
+          jsexecutewrapper(() => {
+            _ga_.playerController.playerApi.pauseVideo()
+          })()
+        }
       }
       globalstate.isHosting = true;
       delete globalstate.connectTo
@@ -442,6 +454,7 @@ globalstate.emitter.on('LocationSwitch', () => {
 globalstate.emitter.on('playpauseToggled', () => {
   ////console.log("PLAYPAUSETOGGLED:", globalstate.data)
   if(globalstate.data.listeningData.isPaused) {
+
     globalstate.data.presenceData.smallImageKey = "pause"
     globalstate.data.presenceData.startTimestamp = 0
     globalstate.data.presenceData.endTimestamp = 0
@@ -454,6 +467,11 @@ globalstate.emitter.on('playpauseToggled', () => {
   pluginEvents('pauseToggled', globalstate.data)
 
   globalstate.updatePresence();
+  globalstate.wssend({
+    "type": "SET_PLAY_PAUSE",
+    "token": globalstate.Token,
+    "state": globalstate.data.presenceData.smallImageKey
+  })
 })
 globalstate.emitter.on('SongSwitch', () => {
   ////console.log("SONGSWITCH:", globalstate.data)
