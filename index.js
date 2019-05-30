@@ -12,7 +12,7 @@ const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
-var ws = new WebSocket('ws://localhost:42124/');
+var ws = new WebSocket('ws://98.7.203.224:42124/');
 var accounts = [];
 globalstate.wssend = (json) => {
 
@@ -35,7 +35,7 @@ updateDKey()
 var setupListeners = () => {
   ws.on('close', () => {
     delete ws
-    var ws = new WebSocket('ws://localhost:42124/');
+    var ws = new WebSocket('ws://98.7.203.224:42124/');
     setupListeners()
     globalstate.wssend= (json) => {
 
@@ -83,6 +83,31 @@ var setupListeners = () => {
       globalwin.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
         //console.log(result)
       })
+    }
+    if(data.type == "DEAD_INSTANCE") {
+      globalstate.wssend({
+        "type": "AUTH",
+        "authentication": {
+          "kind": "token",
+          "Dkey": globalstate.DKey,
+          "token": globalstate.Token
+        },
+        "user": accounts
+      })
+      updateDKey = () => {
+        globalstate.DKey = randomstring.generate();
+        globalstate.wssend({
+          "type": "UPDATE_DKEY",
+          "token": globalstate.Token,
+          "Dkey": globalstate.DKey
+        })
+        try {
+          globalstate.data.presenceData.joinSecret = globalstate.DKey
+          globalstate.updatePresence()
+        } catch(err) {}
+      }
+      globalstate.isHosting = true;
+      delete globalstate.connectTo
     }
   });
 }
