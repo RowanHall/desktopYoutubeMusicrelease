@@ -9,11 +9,8 @@ const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 
 
-client.on('joinRequest', (data) => {
-  console.log("RECIEVED JOINREQUEST FROM D_RPC", data)
-})
-client.on('join', (data) => {
-  console.log("RECIEVED JOIN FROM D_RPC", data)
+client.on('joinRequest', (data1, data2) => {
+  console.log("RECIEVED JOINREQUEST FROM D_RPC", data1, data2)
 })
 
 class MediaEmitter extends EventEmitter {}
