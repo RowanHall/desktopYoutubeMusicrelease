@@ -106,6 +106,18 @@ var setupListeners = () => {
           globalstate.updatePresence()
         } catch(err) {}
       }
+      if(data.type == "SET_PLAY_PAUSE") {
+        if(data.state == "play") {
+          jsexecutewrapper(() => {
+            _ga_.playerController.playerApi.playVideo()
+          })()
+        }
+        if(data.state == "pause") {
+          jsexecutewrapper(() => {
+            _ga_.playerController.playerApi.pauseVideo()
+          })()
+        }
+      }
       globalstate.isHosting = true;
       delete globalstate.connectTo
     }
@@ -442,6 +454,7 @@ globalstate.emitter.on('LocationSwitch', () => {
 globalstate.emitter.on('playpauseToggled', () => {
   ////console.log("PLAYPAUSETOGGLED:", globalstate.data)
   if(globalstate.data.listeningData.isPaused) {
+
     globalstate.data.presenceData.smallImageKey = "pause"
     globalstate.data.presenceData.startTimestamp = 0
     globalstate.data.presenceData.endTimestamp = 0
@@ -454,6 +467,11 @@ globalstate.emitter.on('playpauseToggled', () => {
   pluginEvents('pauseToggled', globalstate.data)
 
   globalstate.updatePresence();
+  globalstate.wssend({
+    "type": "SET_PLAY_PAUSE",
+    "token": globalstate.Token,
+    "state": globalstate.data.presenceData.smallImageKey
+  })
 })
 globalstate.emitter.on('SongSwitch', () => {
   ////console.log("SONGSWITCH:", globalstate.data)

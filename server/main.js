@@ -97,7 +97,16 @@ wss.on('connection', function connection(ws) {
             "type": "SET_SONG",
             "close": false,
             "URL": message.songURL,
-            "songStart": parentSocket.songStart
+            "songStart": ws.instance.songStart
+          }))
+        })
+      }
+      if(message.type == "SET_PLAY_PAUSE" && ws.type == 1 && message.token == ws.instance.token) {
+        ws.instance.isPaused = (message.state == "pause")
+        ws.instance.sockets.forEach(socket => {
+          socket.send(JSON.stringify({
+            "type": "SET_PLAY_PAUSE",
+            "state": message.state
           }))
         })
       }
