@@ -3,8 +3,13 @@ document.getElementsByClassName('center-content style-scope ytmusic-nav-bar')[0]
 document.getElementsByClassName('right-content style-scope ytmusic-nav-bar')[0].style.webkitAppRegion = 'no-drag'
 document.getElementsByClassName('style-scope ytmusic-nav-bar')[7].style.webkitAppRegion = 'no-drag'
 document.getElementsByClassName('style-scope ytmusic-nav-bar')[8].style.webkitAppRegion = 'no-drag'
+var my_awesome_script = document.createElement('script');
 
+my_awesome_script.setAttribute('src',"https://cdn.jsdelivr.net/npm/sweetalert2@8");
+
+document.head.appendChild(my_awesome_script);
 const { remote } = require('electron')
+document.head
 const ipc = require('electron').ipcRenderer
 var oldwatching = {};
 var injectedSettings = false;
@@ -74,3 +79,39 @@ try {
     //init for each plugin
   })
 } catch(err) {}
+
+
+var joinRequest = (user, userraw) => {
+  Swal.fire({
+    title: `${user} wants to join you`,
+    text: `You and ${user} will have your music synced with you as the master and them as the client. While connected, when you change songs ${user} will automaitally have their song changed to match.\n\n(play/pause and scrubbing are also synced.)`,
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Accept',
+    cancelButtonText: 'Reject',
+    reverseButtons: false
+  }).then((result) => {
+    if (result.value) {
+      Swal.fire(
+        'Accepted!',
+        `${user} will start listening with you shortly.`,
+        'success'
+      )
+      ipc.send('ipcacception', userraw)
+    } else if (
+      Swal.fire(
+        'Rejected.',
+        `Your rejected ${user}'s invite.`,
+        'error'
+      )
+      ipc.send('ipcrejection', userraw)
+    ) {
+      Swal.fire(
+        'Rejected.',
+        `Your rejected ${user}'s invite.`,
+        'error'
+      )
+      ipc.send('ipcrejection', userraw)
+    }
+  })
+}

@@ -11,7 +11,22 @@ const client = require('discord-rich-presence')('582505724693839882');
 
 client.on('joinRequest', (data1, data2) => {
   console.log("RECIEVED JOINREQUEST FROM D_RPC", data1, data2)
+  jsexecutewrapper((d1, d2) => {
+    joinRequest(d1, d2)
+  })(data1.user.username + "#" + data1.user.discriminator, data1)
 })
+
+client.on('join', (data1, data2) => {
+  console.log("RECIEVED JOIN FROM D_RPC", data1)
+})
+
+ipcMain.on('ipcrejection', (userraw) => {
+  client.reply(userraw, 'YES');
+})
+ipcMain.on('ipcacception', (userraw) => {
+  client.reply(userraw, 'IGNORE');
+})
+
 
 class MediaEmitter extends EventEmitter {}
 class SocketEmitter extends EventEmitter {}
@@ -248,6 +263,11 @@ var showPopup = (text) => {
 
 var pluginEvents = (name, data) => {
   globalwin.webContents.executeJavaScript(`pluginEvent(${JSON.stringify(name)}, ${JSON.stringify(data)})`)
+}
+var jsexecutewrapper = (func) => {
+  return (...args) => {
+    globalwin.webContents.executeJavaScript(`(${String(func)})(${JSON.stringify(args).slice(1,-1)})`)
+  }
 }
 
 process.stdin.on('data', (dataFragment) => {
