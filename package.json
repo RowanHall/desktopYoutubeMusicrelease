@@ -10,9 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "discord-rich-presence": "0.0.8",
-    "discord-rpc": "^3.0.1",
+    "discord-rpc": "^3.0.2",
     "electron": "^5.0.2",
-    "express": "^4.17.0",
+    "express": "^4.17.1",
     "fast-safe-stringify": "^2.0.6",
     "iohook": "^0.4.5",
     "node-notifier": "^5.4.0",
