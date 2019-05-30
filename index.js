@@ -1,12 +1,13 @@
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 const { app, BrowserWindow, Menu, ipcMain, session } = require('electron')
 const notifier = require('node-notifier');
 const fs = require('fs');
 const tempDirectory = require('temp-dir');
 const path = require('path');
 const request = require('request');
-const ioHook = require('iohook');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
+
 
 client.on('joinRequest', (data) => {
   console.log("RECIEVED JOINREQUEST FROM D_RPC", data)
@@ -16,7 +17,7 @@ client.on('join', (data) => {
 })
 
 class MediaEmitter extends EventEmitter {}
-
+class SocketEmitter extends EventEmitter {}
 var globalstate = {};
 globalstate.emitter = new MediaEmitter();
 globalstate.data = {
@@ -58,38 +59,10 @@ globalstate.updatePresence();
 
 
 const mediaEmitter = new MediaEmitter();
-const onloadscript = `const { remote } = require('electron')
-document.getElementsByClassName('left-content style-scope ytmusic-nav-bar')[0].style.webkitAppRegion = "drag"
-const ipc = require('electron').ipcRenderer
-var oldwatching = {};
-setInterval(() => {
-  var root = document.getElementsByClassName("middle-controls style-scope ytmusic-player-bar")[0]
-  var watching = {};
-  watching.icon = {};
-  watching.icon.src = root.children[0].src
-  watching.title = root.children[1].children[0].innerText
-  var c = Array.from(root.children[1].children[1].children[2].children[0].children)
-  d = c.pop()
-  watching.album = {"name": d.innerText, "loc": d.href}
-  watching.authors = []
-  c.forEach(i => {
-  	watching.authors.push({"name": i.innerText, "loc": i.href})
-  })
-  
-  watching.meta = {}
-  watching.meta.inFocus = document.hasFocus()
-  var timestr = document.getElementsByClassName('time-info style-scope ytmusic-player-bar')[0].innerText.split(" / ")
-  watching.time = {};
-  watching.time.watched = (parseInt(timestr[0].split(":")[0])*60) + (parseInt(timestr[0].split(":")[1]))
-  watching.time.length = (parseInt(timestr[1].split(":")[0])*60) + (parseInt(timestr[1].split(":")[1]))
-  
-  ipc.send('watchingUpdate', JSON.stringify(watching))
-  ipc.send('locupdate', document.location.href)
-  ipc.send('pausedupdate', (!(document.getElementById('play-pause-button').title.toLowerCase() == 'pause')))
-}, 10)
-`
-
+const onloadscript = fs.readFileSync(__dirname + "\\inject.js", 'utf-8')
+console.log(onloadscript)
 process.on('uncaughtException', function(error) {
+  console.log(error)
   showPopup("ERROR: " + String(error))
 });
 process.on('unhandledRejection', function(reason, p){
@@ -97,14 +70,13 @@ process.on('unhandledRejection', function(reason, p){
   showPopup("ERROR: " + String(reason))
 });
 const express = require('express')
+var bodyParser = require('body-parser')
 const wapp = express()
+wapp.use( bodyParser.json() );
 const port = 59292
 
-wapp.post('/settingsmod', (req, res) => {
-  res.set({
-    "content-type": "application/json; charset=UTF-8"
-  })
-  res.send(fs.readFileSync(__dirname + "/settings.JSON"))
+wapp.get('/settingsmod', (req, res) => {
+  res.send(require('./settingsmod.js'))
 })
 wapp.get('/api/data', (req, res) => {
   res.set({
@@ -113,7 +85,7 @@ wapp.get('/api/data', (req, res) => {
   res.send(globalstate.data)
 })
 wapp.get('/buggedPolymer.js', (req, res) => {
-  res.send(fs.readFileSync(__dirname + "/buggedPolymer.js"))
+  res.send(fs.readFileSync(__dirname + "\\buggedPolymer.js"))
 })
 
 wapp.listen(port, () => console.log(`Example app listening on port ${port}!`))
@@ -121,16 +93,16 @@ var globalwin;
 function createWindow () {
   // Create the browser window.
   let win = new BrowserWindow({
+    minWidth: 500,
+    minHeight: 500,
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+        webSecurity: false
     },
     frame: false,
-    backgroundColor: "#000",
-    webPreferences: {
-      webSecurity: false
-    }
+    backgroundColor: "#000"
   })
   globalwin = win;
 
@@ -160,14 +132,7 @@ function createWindow () {
         
       })
     } else {
-      if(url.split("?")[0] == "https://music.youtube.com/youtubei/v1/account/get_setting") {
-        console.log(__dirname)
-        const localURL = "http://localhost:59292/settingsmod"
-      
-        callback({
-          cancel: false,
-          redirectURL: ( encodeURI(localURL ) )
-        })
+      if(false) {
       } else {
         callback({
           cancel: false
@@ -261,13 +226,6 @@ var pause = () => {
   
 }
 
-ioHook.on('keyup', event => {
-  //console.log(event.rawcode)
-  mediaEmitter.emit(String(event.rawcode));
-});
-
-// Register and start hook
-ioHook.start();
 
 
 var showPopup = (text) => {
@@ -291,15 +249,9 @@ var showPopup = (text) => {
   }, document.getElementsByTagName('ytmusic-app')[0]])`)
 }
 
-mediaEmitter.on('179', () => {
-    globalwin.webContents.executeJavaScript(`document.getElementById('play-pause-button').click()`, () => {})
-});
-mediaEmitter.on('177', () => {
-  globalwin.webContents.executeJavaScript(`document.getElementsByClassName('previous-button style-scope ytmusic-player-bar')[0].click()`, () => {})
-});
-mediaEmitter.on('176', () => {
-  globalwin.webContents.executeJavaScript(`document.getElementsByClassName('next-button style-scope ytmusic-player-bar')[0].click()`, () => {})
-});
+var pluginEvents = (name, data) => {
+  globalwin.webContents.executeJavaScript(`pluginEvent(${JSON.stringify(name)}, ${JSON.stringify(data)})`)
+}
 
 process.stdin.on('data', (dataFragment) => {
   var dataString = String(dataFragment);
@@ -311,6 +263,7 @@ process.stdin.pause()
 
 globalstate.emitter.on('LocationSwitch', () => {
 //  console.log("LOCATION CHANGED:", globalstate.data)
+  pluginEvents('urlSwitch', globalstate.data)
 })
 globalstate.emitter.on('playpauseToggled', () => {
   //console.log("PLAYPAUSETOGGLED:", globalstate.data)
@@ -322,7 +275,9 @@ globalstate.emitter.on('playpauseToggled', () => {
     globalstate.data.presenceData.smallImageKey = "play"
     globalstate.data.presenceData.startTimestamp = Date.now()
     globalstate.data.presenceData.endTimestamp = Date.now() + (globalstate.data.listeningData.watching.time.length*1000 - globalstate.data.listeningData.watching.time.watched*1000)
+  
   }
+  pluginEvents('pauseToggled', globalstate.data)
   
   globalstate.updatePresence();
 })
@@ -332,18 +287,21 @@ globalstate.emitter.on('SongSwitch', () => {
   var a = [];
   globalstate.data.listeningData.watching.authors.forEach(author => {
     a.push(author.name)
-  })
+  }) 
   var str = a.length == 1 ? a[0] : [ a.slice(0, a.length - 1).join(", "), a[a.length - 1] ].join(" and ")
   globalstate.data.presenceData.state = "By: " + str
   globalstate.data.presenceData.startTimestamp = Date.now()
   globalstate.data.presenceData.endTimestamp = Date.now() + globalstate.data.listeningData.watching.time.length*1000
   globalstate.data.presenceData.smallImageKey = "play"
   globalstate.data.presenceData.joinSecret = "SetJoinSecret @ " + Date.now()
+  globalstate.data.presenceData.partyId = "SetPartyID @ " + Date.now()
   globalstate.updatePresence();
+  pluginEvents('songSwitch', globalstate.data)
 })
 globalstate.emitter.on('TimeShift', () => {
   //console.log("TIMESHIFT:", globalstate.data)
   globalstate.data.presenceData.startTimestamp = Date.now()
   globalstate.data.presenceData.endTimestamp = Date.now() + (globalstate.data.listeningData.watching.time.length*1000 - globalstate.data.listeningData.watching.time.watched*1000)
+  pluginEvents('timeShift', globalstate.data)
   
 })
