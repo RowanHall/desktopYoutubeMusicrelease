@@ -16,6 +16,7 @@ window.onload =() => {
   var injectedSettings = false;
   var oldviewing
   var plugins;
+  ipc.send('pageload')
   setInterval(() => {
     try {
       var gawatching = window._ga_.navigator.playerController.playerApi.getPlayerResponse().videoDetails
