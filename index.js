@@ -12,7 +12,8 @@ const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
-const ws = new WebSocket('ws://localhost:42124/');
+const ws = new WebSocket('ws://98.7.203.224:42124/');
+setupListeners()
 var accounts = [];
 globalstate.wssend = (json) => {
 
@@ -32,50 +33,58 @@ var updateDKey = () => {
 globalstate.Token = randomstring.generate();
 updateDKey()
 
-setInterval(updateDKey, 10000)
-ws.on('open', function open() {
-  globalstate.wssend = (json) => {
-    console.log("C --> S", json)
-    ws.send(JSON.stringify(json))
-  }
-  if(globalstate.isHosting) {
-    globalstate.wssend({
-      "type": "AUTH",
-      "authentication": {
-        "kind": "token",
-        "Dkey": globalstate.DKey,
-        "token": globalstate.Token
-      },
-      "user": accounts
-    })
-  } else {
-    globalstate.wssend({
-      "type": "AUTH",
-      "authentication": {
-        "kind": "token",
-        "Dkey": globalstate.connectTo
-      },
-      "user": accounts
-    })
-  }
-});
-
-ws.on('message', function message(data) {
-  var data = JSON.parse(data)
-  console.log("S --> C", data)
-  if(data.close != false) {
-    ws.terminate()
+var setupListeners = () => {
+  ws.on('close', () => {
     const ws = new WebSocket('ws://98.7.203.224:42124/');
+    setupListeners()
     globalstate.wssend= (json) => {
 
     }
-  }
-  if(data.type == "PING") {
-    globalstate.wssend({
-      "type": "PONG"
-    })
-  }
-});
+  })
+  ws.on('open', function open() {
+    globalstate.wssend = (json) => {
+      console.log("C --> S", json)
+      ws.send(JSON.stringify(json))
+    }
+    if(globalstate.isHosting) {
+      globalstate.wssend({
+        "type": "AUTH",
+        "authentication": {
+          "kind": "token",
+          "Dkey": globalstate.DKey,
+          "token": globalstate.Token
+        },
+        "user": accounts
+      })
+    } else {
+      globalstate.wssend({
+        "type": "AUTH",
+        "authentication": {
+          "kind": "token",
+          "Dkey": globalstate.connectTo
+        },
+        "user": accounts
+      })
+    }
+  });
+  ws.on('message', function message(data) {
+    var data = JSON.parse(data)
+    console.log("S --> C", data)
+    if(data.close != false) {
+      ws.close()
+    }
+    if(data.type == "PING") {
+      globalstate.wssend({
+        "type": "PONG"
+      })
+    }
+  });
+}
+
+setInterval(updateDKey, 10000)
+
+
+
 
 client.on('joinRequest', (data1, data2) => {
   console.log("RECIEVED JOINREQUEST FROM D_RPC", data1, data2)
@@ -88,12 +97,7 @@ client.on('join', (data1, data2) => {
   console.log("RECIEVED JOIN FROM D_RPC", data1)
   globalstate.isHosting = false;
   globalstate.connectTo = data1
-  console.log(globalstate, "TERMINATING")
-  ws.terminate()
-  const ws = new WebSocket('ws://98.7.203.224:42124/');
-  globalstate.wssend= (json) => {
-
-  }
+  ws.close()
 })
 
 ipcMain.on('ipcacception', (userraw) => {
