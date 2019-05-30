@@ -78,7 +78,7 @@ var setupListeners = () => {
         "type": "PONG"
       })
     }
-    if(data.type = "SET_SONG") {
+    if(data.type == "SET_SONG") {
       globalwin.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
         //console.log(result)
       })
