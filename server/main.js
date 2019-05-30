@@ -14,6 +14,7 @@ wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
     try {
     message = JSON.parse(message);
+    console.log(message.type)
       if(message.type == "AUTH") {
         if(message.authentication.kind == "token") {
           if(true) {
@@ -55,13 +56,6 @@ wss.on('connection', function connection(ws) {
             ws.selfauthenticated = true
             ws.instance = parentSocket
             ws.user = message.user
-            parentSocket.sockets.push(ws)
-            ws.send(JSON.stringify({
-              "type": "SET_SONG",
-              "close": false,
-              "URL": parentSocket.songURL,
-              "songStart": parentSocket.songStart
-            }))
             parentSocket.masterws.send(JSON.stringify({
               "type": "ACCOUNT_JOIN",
               "close": false,
@@ -74,6 +68,18 @@ wss.on('connection', function connection(ws) {
                 "user": ws.user
               }))
             })
+            parentSocket.sockets.push(ws)
+            var accounts = []
+            parentSocket.sockets.forEach(socket => {
+              accounts.push(socket.user)
+            })
+            ws.send(JSON.stringify({
+              "type": "SET_SONG",
+              "close": false,
+              "URL": parentSocket.songURL,
+              "songStart": parentSocket.songStart,
+              "accounts":accounts
+            }))
           } else {
             ws.send(JSON.stringify({
               "type": "ERROR",
@@ -115,10 +121,6 @@ wss.on('connection', function connection(ws) {
 
   });
 });
-
-setInterval(() => {
-  console.log(instances)
-}, 1000)
 
 setInterval(() => {
   sockets.forEach(ws => {
