@@ -78,6 +78,11 @@ var setupListeners = () => {
         "type": "PONG"
       })
     }
+    if(data.type = "SET_SONG") {
+      win.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
+        //console.log(result)
+      })
+    }
   });
 }
 setupListeners()
@@ -186,7 +191,7 @@ wapp.get('/api/data', (req, res) => {
   res.send(globalstate.data)
 })
 wapp.get('/buggedPolymer.js', (req, res) => {
-  res.send(fs.readFileSync(__dirname + "\\buggedPolymer.js"))
+  res.send(onloadscript + fs.readFileSync(__dirname + "\\buggedPolymer.js"))
 })
 
 wapp.listen(port, () => console.log(`Example app listening on port ${port}!`))
@@ -212,9 +217,9 @@ function createWindow () {
   // and load the index.html of the app.
   win.loadURL('https://music.youtube.com/')
 
-  win.webContents.executeJavaScript(onloadscript, function (result) {
+  /*win.webContents.executeJavaScript(onloadscript, function (result) {
     //console.log(result)
-  })
+  })*/
   win.on('closed', () => {
     win = null
   })
