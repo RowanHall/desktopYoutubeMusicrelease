@@ -106,6 +106,13 @@ client.on('join', (data1, data2) => {
     },
     "user": accounts
   })
+  updateDKey = () => {
+    globalstate.DKey = randomstring.generate();
+    try {
+      globalstate.data.presenceData.joinSecret = globalstate.DKey
+      globalstate.updatePresence()
+    } catch(err) {}
+  }
 })
 
 ipcMain.on('ipcacception', (userraw) => {
