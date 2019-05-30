@@ -6,7 +6,7 @@ var instances = [];
 var sockets = [];
 
 wss.on('connection', function connection(ws) {
-  ws.lastPong = 0;
+  ws.lastPong = Date.now();
   sockets.push(ws)
   ws.on('close', ()=>{
     wsClosed(ws)
