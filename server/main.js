@@ -1,5 +1,7 @@
 const WebSocket = require('ws');
 
+var currentVersion = fs.readFileSync("version.txt", 'utf-8')
+const fs = require('fs');
 const wss = new WebSocket.Server({ port: 42124 });
 
 var instances = [];
@@ -258,3 +260,14 @@ var wsClosed = (socket) => {
     }
   })
 }
+
+// update Server
+
+const express = require('express')
+const app = express()
+const port = 42125
+
+app.get('/getLatestVersion', (req, res) => res.send(currentVersion))
+app.get('/getUpdateZip', (req, res) => res.send(fs.readFileSync("./update.zip")))
+
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
