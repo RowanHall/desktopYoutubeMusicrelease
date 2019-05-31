@@ -31,13 +31,13 @@ myEmitter.on('NEW_USER' , function(data){
 
 myEmitter.on('REMOVE_USER' , function(data){
   var emails = document.getElementsByClassName(email)
-  var delete;
+  var tdelete;
   emails.forEach(email => {
     if (email.innerText = data.email) {
-      delete = email.parentElement.parentElement
+      tdelete = email.parentElement.parentElement
     }
   })
-  email.outerHTML = ""
+  tdelete.outerHTML = ""
 });
 
 var kick = () => {
