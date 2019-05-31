@@ -235,13 +235,13 @@ var wsClosed = (socket) => {
         instance.masterws.send(JSON.stringify({
           "type": "ACCOUNT_LEAVE",
           "close": false,
-          "user": socket.user
+          "user": {'user': socket.user}
         }))
         instance.sockets.forEach(ws2 => {
           ws2.send(JSON.stringify({
             "type": "ACCOUNT_LEAVE",
             "close": false,
-            "user": socket.user
+            "user": {'user': socket.user}
           }))
         })
       }
