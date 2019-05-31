@@ -107,13 +107,18 @@ var setupListeners = () => {
         } catch(err) {}
       }
       if(data.type == "SET_PLAY_PAUSE") {
+        console.log(data.state)
         if(data.state == "play") {
+          console.log("SETTING STATE PLAY")
           jsexecutewrapper(() => {
+            console.log("SETTING STATE PLAY")
             _ga_.playerController.playerApi.playVideo()
           })()
         }
         if(data.state == "pause") {
+          console.log("SETTING STATE PAUSE")
           jsexecutewrapper(() => {
+            console.log("SETTING STATE PAUSE")
             _ga_.playerController.playerApi.pauseVideo()
           })()
         }
