@@ -175,7 +175,7 @@ var setupListeners = () => {
       musicShareWindowModule.NEW_USER(parsedUser)
     }
     if(data.type == "ACCOUNT_LEAVE") {
-      if(data.user.owner) {
+      if(data.user.user) {
         var parsedUser = {
           'owner': data.user.owner,
         }
