@@ -106,8 +106,8 @@ wss.on('connection', function connection(ws) {
         ws.instance.sockets.forEach(socket => {
           socket.send(JSON.stringify({
             "type": "SET_PLAY_PAUSE",
-            "state": message.state
-            "close": false,
+            "state": message.state,
+            "close": false
           }))
         })
       }
