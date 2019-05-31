@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
+const EventEmitter = require('events');
 
 class MyEmitter extends EventEmitter {}
 
