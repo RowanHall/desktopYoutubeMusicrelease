@@ -19,7 +19,9 @@ globalstate.wssend = (json) => {
 }
   globalstate.PID = "PARTY_" + randomstring.generate();
 
-musicShareWindowModule.EMITTER.on("SEND", globalstate.wssend)
+musicShareWindowModule.setSend((d) => {
+  globalstate.wssend(d)
+})
 
 var updateDKey = () => {
   globalstate.DKey = randomstring.generate();

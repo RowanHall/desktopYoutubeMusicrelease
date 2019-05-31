@@ -1,22 +1,15 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const EventEmitter = require('events');
-
-class MyEmitter extends EventEmitter {}
-
-
-myEmitter = new MyEmitter();
 const globalData = {
-  "send": () => {},
-  "emitter": myEmitter
+  "send": () => {}
 };
 var jsexecutewrapper = (func) => {
   return (...args) => {
     globalData.win.webContents.executeJavaScript(`(${String(func)})(${JSON.stringify(args).slice(1,-1)})`)
   }
 }
-ipcMain.on('kickUser', (email) => {
-  globalData.emitter.emit("SEND", {
-    "TYPE": "KICK_USER",
+ipcMain.on('kickUser', (event, email) => {
+  globalData.send({
+    "type": "KICK_USER",
     "email": email
   })
 })
@@ -61,8 +54,7 @@ module.exports = {
       myEmitter.emit('CLEAR', userObject)
     })(userObject)
   },
-  "EMITTER": globalData.emitter,
-  "setSendFunction": (f) => {
+  "setSend": (f) => {
     globalData.send = f
   }
 }
