@@ -175,27 +175,29 @@ var setupListeners = () => {
       musicShareWindowModule.NEW_USER(parsedUser)
     }
     if(data.type == "ACCOUNT_LEAVE") {
-      var parsedUser = {
-        'owner': data.user.owner,
-      }
-      try {
-        data.user.user.forEach(account => {
-          if(account.active) {
-            parsedUser.email = account.email
-            parsedUser.name = account.name,
-            parsedUser.icon = account.photo_url
-          }
-        })
-      } catch(err) {
-        data.user.forEach(account => {
-          if(account.active) {
-            parsedUser.email = account.email
-            parsedUser.name = account.name,
-            parsedUser.icon = account.photo_url
-          }
-        })
-      }
-      musicShareWindowModule.REMOVE_USER(parsedUser)
+      if(data.user.owner) {
+        var parsedUser = {
+          'owner': data.user.owner,
+        }
+        try {
+          data.user.user.forEach(account => {
+            if(account.active) {
+              parsedUser.email = account.email
+              parsedUser.name = account.name,
+              parsedUser.icon = account.photo_url
+            }
+          })
+        } catch(err) {
+          data.user.forEach(account => {
+            if(account.active) {
+              parsedUser.email = account.email
+              parsedUser.name = account.name,
+              parsedUser.icon = account.photo_url
+            }
+          })
+        }
+        musicShareWindowModule.REMOVE_USER(parsedUser)
+      } 
     }
     if(data.type == "UPDATE_USER") {
       var parsedOldUser = {
