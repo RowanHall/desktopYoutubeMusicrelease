@@ -40,6 +40,12 @@ module.exports = {
       myEmitter.emit('REMOVE_USER', userObject)
     })(userObject)
   },
+  "CLEAR": (userObject) => {
+    console.log("CLEAR", userObject, globalData.win)
+    jsexecutewrapper((userObject) => {
+      myEmitter.emit('CLEAR', userObject)
+    })(userObject)
+  }
   "GET_WINDOW": () => {
     return globalData.win
   }

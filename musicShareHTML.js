@@ -42,6 +42,10 @@ myEmitter.on('REMOVE_USER' , function(data){
   tdelete.outerHTML = ""
 });
 
+myEmitter.on('CLEAR', () => {
+  document.getElementById('midDiv').innerHTML = ""
+})
+
 var kick = () => {
   //alot of work here.
   alert("kick user")
