@@ -148,6 +148,43 @@ var setupListeners = () => {
       })
       musicShareWindowModule.NEW_USER(parsedUser)
     }
+    if(data.type == "ACCOUNT_LEAVE") {
+      var parsedUser = {
+        'owner': data.user.owner,
+      }
+      data.user.user.forEach(account => {
+        if(account.active) {
+          parsedUser.email = account.email
+          parsedUser.name = account.name,
+          parsedUser.icon = account.photo_url
+        }
+      })
+      musicShareWindowModule.REMOVE_USER(parsedUser)
+    }
+    if(data.type == "UPDATE_USER") {
+      var parsedOldUser = {
+        'owner': data.oldUser.owner,
+      }
+      data.oldUser.user.forEach(account => {
+        if(account.active) {
+          parsedUser.email = account.email
+          parsedUser.name = account.name,
+          parsedUser.icon = account.photo_url
+        }
+      })
+      var parsedNewUser = {
+        'owner': data.newUser.owner,
+      }
+      data.newUser.user.forEach(account => {
+        if(account.active) {
+          parsedUser.email = account.email
+          parsedUser.name = account.name,
+          parsedUser.icon = account.photo_url
+        }
+      })
+      musicShareWindowModule.REMOVE_USER(parsedOldUser)
+      musicShareWindowModule.NEW_USER(parsedNewUser)
+    }
   });
 }
 setupListeners()

@@ -150,21 +150,40 @@ wss.on('connection', function connection(ws) {
         ws.instance.Dkey = message.Dkey
       }
       if(message.type == "UPDATE_USER") {
-        ws.instance.masterws.send(JSON.stringify({
-          "type": "UPDATE_USER",
-          "oldUser": ws.user,
-          "newUser": message.user,
-          "close": false
-        }))
-        ws.instance.sockets.forEach(socket => {
-          socket.send(JSON.stringify({
+        if(ws.type == 1 ) {
+          ws.instance.masterws.send(JSON.stringify({
             "type": "UPDATE_USER",
-            "oldUser": ws.user,
-            "newUser": message.user,
+            "oldUser": {"user": ws.user, "owner": true},
+            "newUser": {"user": message.user, "owner": true},
             "close": false
           }))
-        })
-        ws.user = message.user
+          ws.instance.sockets.forEach(socket => {
+            socket.send(JSON.stringify({
+              "type": "UPDATE_USER",
+              "oldUser": {"user": ws.user, "owner": true},
+              "newUser": {"user": message.user, "owner": true},
+              "close": false
+            }))
+          })
+          ws.user = message.user
+        }
+        if(ws.type == 0 ) {
+          ws.instance.masterws.send(JSON.stringify({
+            "type": "UPDATE_USER",
+            "oldUser": {"user": ws.user, "owner": false},
+            "newUser": {"user": message.user, "owner": false},
+            "close": false
+          }))
+          ws.instance.sockets.forEach(socket => {
+            socket.send(JSON.stringify({
+              "type": "UPDATE_USER",
+              "oldUser": {"user": ws.user, "owner": false},
+              "newUser": {"user": message.user, "owner": false},
+              "close": false
+            }))
+          })
+          ws.user = message.user
+        }
       }
       if(message.type == "PONG") {
         ws.lastPong = Date.now()
