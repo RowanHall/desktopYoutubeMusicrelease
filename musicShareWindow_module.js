@@ -1,4 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
+
+class MyEmitter extends EventEmitter {}
+
+myEmitter = new MyEmitter();
 const globalData = {
   "send": () => {}
 };
@@ -8,7 +12,7 @@ var jsexecutewrapper = (func) => {
   }
 }
 ipcMain.on('kickUser', (email) => {
-  globalData.send({
+  MyEmitter.emit("SEND", {
     "TYPE": "KICK_USER",
     "email": email
   })
@@ -54,9 +58,7 @@ module.exports = {
       myEmitter.emit('CLEAR', userObject)
     })(userObject)
   },
-  "GET_WINDOW": () => {
-    return globalData.win
-  },
+  "EMITTER": myEmitter,
   "setSendFunction": (f) => {
     globalData.send = f
   }

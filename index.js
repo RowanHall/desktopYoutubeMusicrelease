@@ -19,7 +19,7 @@ globalstate.wssend = (json) => {
 }
   globalstate.PID = "PARTY_" + randomstring.generate();
 
-musicShareWindowModule.setSendFunction = globalstate.wssend
+musicShareWindowModule.EMITTER.on("SEND", globalstate.wssend)
 
 var updateDKey = () => {
   globalstate.DKey = randomstring.generate();
@@ -44,14 +44,14 @@ var setupListeners = () => {
     globalstate.wssend= (json) => {
 
     }
-    musicShareWindowModule.setSendFunction = globalstate.wssend
+    
   })
   ws.on('open', function open() {
     globalstate.wssend = (json) => {
       console.log("C --> S", json)
       ws.send(JSON.stringify(json))
     }
-    musicShareWindowModule.setSendFunction = globalstate.wssend
+    
     if(globalstate.isHosting) {
       globalstate.wssend({
         "type": "AUTH",
