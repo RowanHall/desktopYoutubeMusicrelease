@@ -12,7 +12,7 @@ const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
-var ws = new WebSocket('ws://98.7.203.224:42124/');
+var ws = new WebSocket('ws://localhost:42124/');
 var accounts = [];
 globalstate.wssend = (json) => {
 
@@ -41,19 +41,19 @@ updateDKey()
 var setupListeners = () => {
   ws.on('close', () => {
     delete ws
-    var ws = new WebSocket('ws://98.7.203.224:42124/');
+    var ws = new WebSocket('ws://localhost:42124/');
     setupListeners()
     globalstate.wssend= (json) => {
 
     }
-    
+
   })
   ws.on('open', function open() {
     globalstate.wssend = (json) => {
       console.log("C --> S", json)
       ws.send(JSON.stringify(json))
     }
-    
+
     if(globalstate.isHosting) {
       globalstate.wssend({
         "type": "AUTH",
