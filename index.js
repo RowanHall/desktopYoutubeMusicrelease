@@ -12,7 +12,7 @@ const request = require('request');
 const EventEmitter = require('events');
 const client = require('discord-rich-presence')('582505724693839882');
 const WebSocket = require('ws');
-var ws = new WebSocket('ws://localhost:42124/');
+var ws = new WebSocket('ws://98.7.203.224:42124/');
 var accounts = [];
 globalstate.wssend = (json) => {
 
@@ -35,7 +35,7 @@ updateDKey()
 var setupListeners = () => {
   ws.on('close', () => {
     delete ws
-    var ws = new WebSocket('ws://localhost:42124/');
+    var ws = new WebSocket('ws://98.7.203.224:42124/');
     setupListeners()
     globalstate.wssend= (json) => {
 
@@ -128,6 +128,11 @@ var setupListeners = () => {
           _ga_.playerController.playerApi.pauseVideo()
         })(data)
       }
+    }
+    if(data.type == "SET_SCRUB") {
+      jsexecutewrapper((data) => {
+        window.songStart = data.songStart
+      })(data)
     }
   });
 }
@@ -509,5 +514,9 @@ globalstate.emitter.on('TimeShift', () => {
   globalstate.data.presenceData.startTimestamp = Date.now()
   globalstate.data.presenceData.endTimestamp = Date.now() + (globalstate.data.listeningData.watching.time.length*1000 - globalstate.data.listeningData.watching.time.watched*1000)
   pluginEvents('timeShift', globalstate.data)
-
+  globalstate.wssend({
+    "type": "SET_SCRUB",
+    "token": globalstate.Token,
+    "songStart": Date.now() - globalstate.data.listeningData.watching.time.watched*1000
+  })
 })

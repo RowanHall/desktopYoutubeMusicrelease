@@ -103,10 +103,21 @@ wss.on('connection', function connection(ws) {
       }
       if(message.type == "SET_PLAY_PAUSE" && ws.type == 1 && message.token == ws.instance.token) {
         ws.instance.isPaused = (message.state == "pause")
+        ws.instance.songStart = message.songStart
         ws.instance.sockets.forEach(socket => {
           socket.send(JSON.stringify({
             "type": "SET_PLAY_PAUSE",
             "state": message.state,
+            "songStart": message.songStart,
+            "close": false
+          }))
+        })
+      }
+      if(message.type == "SET_SCRUB" && ws.type == 1 && message.token == ws.instance.token) {
+        ws.instance.songStart = message.songStart
+        ws.instance.sockets.forEach(socket => {
+          socket.send(JSON.stringify({
+            "type": "SET_SCRUB",
             "songStart": message.songStart,
             "close": false
           }))
