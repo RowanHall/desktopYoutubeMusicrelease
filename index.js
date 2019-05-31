@@ -167,13 +167,23 @@ var setupListeners = () => {
       var parsedUser = {
         'owner': data.user.owner,
       }
-      data.user.forEach(account => {
-        if(account.active) {
-          parsedUser.email = account.email
-          parsedUser.name = account.name,
-          parsedUser.icon = account.photo_url
-        }
-      })
+      try {
+        data.user.user.forEach(account => {
+          if(account.active) {
+            parsedUser.email = account.email
+            parsedUser.name = account.name,
+            parsedUser.icon = account.photo_url
+          }
+        })
+      } catch(err) {
+        data.user.forEach(account => {
+          if(account.active) {
+            parsedUser.email = account.email
+            parsedUser.name = account.name,
+            parsedUser.icon = account.photo_url
+          }
+        })
+      }
       musicShareWindowModule.REMOVE_USER(parsedUser)
     }
     if(data.type == "UPDATE_USER") {
