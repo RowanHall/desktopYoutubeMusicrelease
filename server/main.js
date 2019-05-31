@@ -9,6 +9,7 @@ wss.on('connection', function connection(ws) {
   ws.lastPong = Date.now();
   sockets.push(ws)
   ws.on('close', ()=>{
+    console.log("ON CLOSE")
     wsClosed(ws)
   })
   ws.on('message', function incoming(message) {
@@ -22,9 +23,11 @@ wss.on('connection', function connection(ws) {
             delete ws.type
             delete ws.user
             delete ws.instance
+            console.log("ON TOKEN AUTH")
             wsClosed(ws)
           }
           //we know this is the master.
+          sockets.push(ws)
           ws.selfauthenticated = true
           ws.type = 1;
           ws.user = message.user
@@ -58,8 +61,10 @@ wss.on('connection', function connection(ws) {
             delete ws.type
             delete ws.user
             delete ws.instance
+            console.log("ON DKEY AUTH")
             wsClosed(ws)
           }
+          sockets.push(ws)
           //we know this is the client.
           ws.type = 0
           var parentSocket = "NOT FOUND"
@@ -201,12 +206,15 @@ wss.on('connection', function connection(ws) {
 });
 
 setInterval(() => {
+  //console.log(sockets)
   sockets.forEach(ws => {
+    //console.log("SENT PING TO ", ws.lastPong)
     ws.send(JSON.stringify({
       "type": "PING",
       "close": false
     }))
     if(Date.now() - ws.lastPong > 7500) {
+      console.log("TIME OUT")
       wsClosed(ws)
       ws.terminate()
     }
@@ -214,6 +222,7 @@ setInterval(() => {
 }, 5000)
 
 var wsClosed = (socket) => {
+  console.log("closing", socket.user)
   sockets.forEach((socket2, index) => {
     if(socket == socket2) {
       sockets.splice(index, 1);
@@ -226,13 +235,13 @@ var wsClosed = (socket) => {
         instance.masterws.send(JSON.stringify({
           "type": "ACCOUNT_LEAVE",
           "close": false,
-          "user": socket.user
+          "user": {'user': socket.user}
         }))
         instance.sockets.forEach(ws2 => {
           ws2.send(JSON.stringify({
             "type": "ACCOUNT_LEAVE",
             "close": false,
-            "user": socket.user
+            "user": {'user': socket.user}
           }))
         })
       }
