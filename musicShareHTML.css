@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:100i,200,200i,400,400i,600,600i,800,800i&display=swap');
+#topDiv {
+  -webkit-app-region: drag;
+  background-color: #010110;
+  color: #FEFEEF;
+  height: 40px;
+  overflow: hidden;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+#midDiv {
+  background-color: rgba(16,16,32, 0.75);
+  color: #FEFEEF;
+  height: calc(100vh - 40px);
+  overflow: hidden;
+  border-radius: 0px;
+}
+h3 {
+  margin: 5px;
+}
+* {
+  background-color: rgba(0,0,0,0)
+  border: 0px;
+  margin: 0px;
+  font-family: 'Montserrat', sans-serif;
+  border-radius: 5px;
+  color: #FEFEEF;
+}
+.childLeft {
+  float:left;
+  width: 55px;
+}
+.svgKick {
+  width: 40px;
+  height: 40px;
+  margin-top: 6.5px;
+  margin-right: 6.5px;
+  float: right;
+}
+.svgOwner {
+  width: 40px;
+  height: 40px;
+  margin-top: 6.5px;
+  margin-right: 6.5px;
+  float: left;
+}
+.childinnerRight {
+  float: right;
+  width: 46.5;
+}
+.user {
+  font-size: 26px;
+  margin-left: 5px;
+}
+.email {
+  font-size: 14px;
+  margin-top: 1px;
+  font-style: italic;
+  font-weight: lighter;
+  margin-left: 5px;
+}
+.childRight {
+  float:right;
+  width: calc(97.5vw - 55px);
+}
+.connectedUser {
+  width: 97.5vw;
+  margin-top: 1.25vw;
+  height: 55px;
+  margin-left: 1.25vw;
+  background-color: rgba(1,1,16, 0.5);  
+}

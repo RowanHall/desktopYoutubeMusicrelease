@@ -1,16 +1,24 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const globalData = {};
+var jsexecutewrapper = (func) => {
+  return (...args) => {
+    globalData.win.webContents.executeJavaScript(`(${String(func)})(${JSON.stringify(args).slice(1,-1)})`)
+  }
+}
 module.exports = {
   "initialize": () => {
 
     function createWindow () {
       // Create the browser window.
       let win = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 500,
+        height: 650,
         webPreferences: {
           nodeIntegration: true
-        }
+        },
+        transparent: true,
+        frame:false,
+        resizable: false
       })
       // and load the index.html of the app.
       win.loadFile(__dirname + '/musicShare.html')
@@ -21,13 +29,16 @@ module.exports = {
     return app;
   },
   "NEW_USER": (userObject) => {
-    ipcMain.
+    console.log("NEW_USER", userObject, globalData.win)
+    jsexecutewrapper((userObject) => {
+      myEmitter.emit('NEW_USER', userObject)
+    })(userObject)
   },
   "REMOVE_USER": (userObject) => {
-    
-  },
-  "SET_INFO": (infoObject) => {
-    
+    console.log("REMOVE_USER", userObject, globalData.win)
+    jsexecutewrapper((userObject) => {
+      myEmitter.emit('REMOVE_USER', userObject)
+    })(userObject)
   },
   "GET_WINDOW": () => {
     return globalData.win

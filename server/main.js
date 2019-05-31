@@ -35,10 +35,26 @@ wss.on('connection', function connection(ws) {
             "sockets": []
           })
           ws.instance = instances[instances.length - 1]
+          ws.send(JSON.stringify({
+            "type": "ACCOUNT_JOIN",
+            "close": false,
+            "user": {
+              "user": ws.user,
+              "owner": true
+            }
+          }))
         }
         if(message.authentication.kind == "Dkey") {
           if(true) {
             //clear old data
+            ws.send(JSON.stringify({
+              "type": "ACCOUNT_LEAVE",
+              "close": false,
+              "user": {
+                "user": ws.user,
+                "owner": true
+              }
+            }))
             delete ws.type
             delete ws.user
             delete ws.instance
@@ -59,19 +75,26 @@ wss.on('connection', function connection(ws) {
             parentSocket.masterws.send(JSON.stringify({
               "type": "ACCOUNT_JOIN",
               "close": false,
-              "user": ws.user
+              "user": {
+                "user": ws.user,
+                "owner": false
+              }
             }))
             parentSocket.sockets.forEach(ws2 => {
               ws2.send(JSON.stringify({
                 "type": "ACCOUNT_JOIN",
                 "close": false,
-                "user": ws.user
+                "user": {
+                  "user": ws.user,
+                  "owner": false
+                }
               }))
             })
             parentSocket.sockets.push(ws)
             var accounts = []
+            accounts.push({"user": parentSocket.masterws.user, "owner": true})
             parentSocket.sockets.forEach(socket => {
-              accounts.push(socket.user)
+              accounts.push({"user": socket.user, "owner": false})
             })
             ws.send(JSON.stringify({
               "type": "SET_SONG",
