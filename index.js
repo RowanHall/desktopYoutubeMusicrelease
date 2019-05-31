@@ -167,7 +167,7 @@ var setupListeners = () => {
       var parsedUser = {
         'owner': data.user.owner,
       }
-      data.user.user.forEach(account => {
+      data.user.forEach(account => {
         if(account.active) {
           parsedUser.email = account.email
           parsedUser.name = account.name,

@@ -35,7 +35,7 @@ myEmitter.on('REMOVE_USER' , function(data){
   var emails = Array.from(document.getElementsByClassName('email'))
   var tdelete;
   emails.forEach(email => {
-    if (email.innerText = data.email) {
+    if (email.innerText == data.email) {
       tdelete = email.parentElement.parentElement
     }
   })
