@@ -17,7 +17,8 @@ module.exports = {
           nodeIntegration: true
         },
         transparent: true,
-        frame:false
+        frame:false,
+        resizable: false
       })
       // and load the index.html of the app.
       win.loadFile(__dirname + '/musicShare.html')
@@ -37,12 +38,6 @@ module.exports = {
     console.log("REMOVE_USER", userObject, globalData.win)
     jsexecutewrapper((userObject) => {
       myEmitter.emit('REMOVE_USER', userObject)
-    })(userObject)
-  },
-  "SET_INFO": (infoObject) => {
-    console.log("SET_INFO", userObject, globalData.win)
-    jsexecutewrapper((userObject) => {
-      myEmitter.emit('SET_INFO', userObject)
     })(userObject)
   },
   "GET_WINDOW": () => {

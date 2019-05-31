@@ -2,6 +2,7 @@
 var globalstate = {
   'isHosting': true
 };
+var musicShareWindowModule = require('./musicShareWindow_module.js');
 const { app, BrowserWindow, Menu, ipcMain, session } = require('electron')
 const notifier = require('node-notifier');
 const fs = require('fs');
@@ -134,6 +135,19 @@ var setupListeners = () => {
         window.songStart = data.songStart
       })(data)
     }
+    if(data.type == "ACCOUNT_JOIN") {
+      var parsedUser = {
+        'owner': data.user.owner,
+      }
+      data.user.user.forEach(account => {
+        if(account.active) {
+          parsedUser.email = account.email
+          parsedUser.name = account.name,
+          parsedUser.icon = account.photo_url
+        }
+      })
+      musicShareWindowModule.NEW_USER(parsedUser)
+    }
   });
 }
 setupListeners()
@@ -254,6 +268,7 @@ wapp.get('/buggedPolymer.js', (req, res) => {
 
 wapp.listen(port, () => console.log(`Example app listening on port ${port}!`))
 var globalwin;
+musicShareWindowModule.initialize();
 function createWindow () {
   // Create the browser window.
   let win = new BrowserWindow({

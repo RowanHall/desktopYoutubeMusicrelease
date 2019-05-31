@@ -11,17 +11,9 @@
 #midDiv {
   background-color: rgba(16,16,32, 0.75);
   color: #FEFEEF;
-  height: calc(100vh - 75px);
+  height: calc(100vh - 40px);
   overflow: hidden;
   border-radius: 0px;
-}
-#btmDiv {
-  background-color: rgba(1,1,16, 0.75);
-  color: #FEFEEF;
-  height: 35px;
-  overflow: hidden;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
 }
 h3 {
   margin: 5px;
