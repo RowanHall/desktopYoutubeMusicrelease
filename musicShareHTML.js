@@ -8,7 +8,7 @@ window.myEmitter = new MyEmitter();
 myEmitter.on('NEW_USER' , function(data){
   if(data.email) {
     var icons = [`
-      <img class="svgKick" src="./outline-highlight_off-24px.svg" onclick="kick()">`,`
+      <img class="svgKick" src="./outline-highlight_off-24px.svg" onclick="kick(this.parentElement.parentElement.children[2].innerText)">`,`
       <img class="svgOwner" src="./outline-verified_user-24px.svg">`]
     var icon = ``;
     if(data.owner) {
@@ -46,7 +46,6 @@ myEmitter.on('CLEAR', () => {
   document.getElementById('midDiv').innerHTML = ""
 })
 
-var kick = () => {
-  //alot of work here.
-  alert("kick user")
+var kick = (a) => {
+  ipcRenderer.send('kickUser', a)
 }

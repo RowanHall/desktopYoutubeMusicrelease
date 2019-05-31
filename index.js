@@ -17,6 +17,10 @@ var accounts = [];
 globalstate.wssend = (json) => {
 
 }
+  globalstate.PID = "PARTY_" + randomstring.generate();
+
+musicShareWindowModule.setSendFunction = globalstate.wssend
+
 var updateDKey = () => {
   globalstate.DKey = randomstring.generate();
   globalstate.wssend({
@@ -40,12 +44,14 @@ var setupListeners = () => {
     globalstate.wssend= (json) => {
 
     }
+    musicShareWindowModule.setSendFunction = globalstate.wssend
   })
   ws.on('open', function open() {
     globalstate.wssend = (json) => {
       console.log("C --> S", json)
       ws.send(JSON.stringify(json))
     }
+    musicShareWindowModule.setSendFunction = globalstate.wssend
     if(globalstate.isHosting) {
       globalstate.wssend({
         "type": "AUTH",
@@ -580,7 +586,9 @@ globalstate.emitter.on('SongSwitch', () => {
   globalstate.data.presenceData.endTimestamp = Date.now() + globalstate.data.listeningData.watching.time.length*1000
   globalstate.data.presenceData.smallImageKey = "play"
   globalstate.data.presenceData.joinSecret = globalstate.DKey
-  globalstate.data.presenceData.partyId = "SetPartyID @ " + Date.now()
+  globalstate.data.presenceData.partyId = globalstate.PID
+  globalstate.data.presenceData.partySize = 1;
+  globalstate.data.presenceData.partyMax = 999;
   globalstate.updatePresence();
   pluginEvents('songSwitch', globalstate.data)
   globalstate.wssend({

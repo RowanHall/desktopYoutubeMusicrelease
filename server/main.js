@@ -156,6 +156,20 @@ wss.on('connection', function connection(ws) {
       if(message.type == "UPDATE_DKEY" && ws.type == 1 && message.token == ws.instance.token) {
         ws.instance.Dkey = message.Dkey
       }
+      if(message.type == "KICK_USER" && ws.type == 1) {
+        //get user ws by email
+        ws.instance.sockets.forEach(socket => {
+          socket.user.forEach(user => {
+            if(user.active && user.email == message.email) {
+              socket.send(JSON.stringify({
+                "type": "DEAD_INSTANCE",
+                "close": false,
+                "user": socket.user
+              }))
+            }
+          })
+        })
+      }
       if(message.type == "UPDATE_USER") {
         if(ws.type == 1 ) {
           ws.instance.masterws.send(JSON.stringify({

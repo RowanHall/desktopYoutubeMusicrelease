@@ -1,10 +1,18 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const globalData = {};
+const globalData = {
+  "send": () => {}
+};
 var jsexecutewrapper = (func) => {
   return (...args) => {
     globalData.win.webContents.executeJavaScript(`(${String(func)})(${JSON.stringify(args).slice(1,-1)})`)
   }
 }
+ipcMain.on('kickUser', (email) => {
+  globalData.send({
+    "TYPE": "KICK_USER",
+    "email": email
+  })
+})
 module.exports = {
   "initialize": () => {
 
@@ -48,5 +56,8 @@ module.exports = {
   },
   "GET_WINDOW": () => {
     return globalData.win
+  },
+  "setSendFunction": (f) => {
+    globalData.send = f
   }
 }
