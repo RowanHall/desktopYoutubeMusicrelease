@@ -167,9 +167,9 @@ var setupListeners = () => {
       }
       data.oldUser.user.forEach(account => {
         if(account.active) {
-          parsedUser.email = account.email
-          parsedUser.name = account.name,
-          parsedUser.icon = account.photo_url
+          parsedOldUser.email = account.email
+          parsedOldUser.name = account.name,
+          parsedOldUser.icon = account.photo_url
         }
       })
       var parsedNewUser = {
@@ -177,9 +177,9 @@ var setupListeners = () => {
       }
       data.newUser.user.forEach(account => {
         if(account.active) {
-          parsedUser.email = account.email
-          parsedUser.name = account.name,
-          parsedUser.icon = account.photo_url
+          parsedNewUser.email = account.email
+          parsedNewUser.name = account.name,
+          parsedNewUser.icon = account.photo_url
         }
       })
       musicShareWindowModule.REMOVE_USER(parsedOldUser)
