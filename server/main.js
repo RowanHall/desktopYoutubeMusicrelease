@@ -107,6 +107,7 @@ wss.on('connection', function connection(ws) {
           socket.send(JSON.stringify({
             "type": "SET_PLAY_PAUSE",
             "state": message.state
+            "close": false,
           }))
         })
       }
@@ -114,6 +115,20 @@ wss.on('connection', function connection(ws) {
         ws.instance.Dkey = message.Dkey
       }
       if(message.type == "UPDATE_USER") {
+        ws.instance.masterws.send(JSON.stringify({
+          "type": "UPDATE_USER",
+          "oldUser": ws.user,
+          "newUser": message.user,
+          "close": false
+        }))
+        ws.instance.sockets.forEach(socket => {
+          socket.send(JSON.stringify({
+            "type": "UPDATE_USER",
+            "oldUser": ws.user,
+            "newUser": message.user,
+            "close": false
+          }))
+        })
         ws.user = message.user
       }
       if(message.type == "PONG") {
