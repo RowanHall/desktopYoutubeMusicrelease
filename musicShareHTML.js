@@ -1,6 +1,10 @@
 const { ipcRenderer } = require('electron')
+const EventEmitter = require('events');
 
-ipcRenderer.on('asynchronous-reply', (event, arg) => {
-  console.log(arg) // prints "pong"
-})
-ipcRenderer.send('asynchronous-message', 'ping')
+class MyEmitter extends EventEmitter {}
+
+window.myEmitter = new MyEmitter();
+
+myEmitter.on('NEW_USER' , function(data){
+  console.log(data)
+});
