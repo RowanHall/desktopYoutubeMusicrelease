@@ -107,6 +107,7 @@ wss.on('connection', function connection(ws) {
           socket.send(JSON.stringify({
             "type": "SET_PLAY_PAUSE",
             "state": message.state,
+            "songStart": message.songStart,
             "close": false
           }))
         })

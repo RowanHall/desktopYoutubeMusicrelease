@@ -115,6 +115,8 @@ var setupListeners = () => {
         console.log("SETTING STATE PLAY")
         jsexecutewrapper(() => {
           console.log("SETTING STATE PLAY")
+          overrideviewtimer = false;
+          window.songStart = data.songStart
           _ga_.playerController.playerApi.playVideo()
         })()
       }
@@ -122,6 +124,7 @@ var setupListeners = () => {
         console.log("SETTING STATE PAUSE")
         jsexecutewrapper(() => {
           console.log("SETTING STATE PAUSE")
+          overrideviewtimer = true;
           _ga_.playerController.playerApi.pauseVideo()
         })()
       }
@@ -475,6 +478,7 @@ globalstate.emitter.on('playpauseToggled', () => {
   globalstate.wssend({
     "type": "SET_PLAY_PAUSE",
     "token": globalstate.Token,
+    "songStart": Date.now() - globalstate.data.listeningData.watching.time.watched*1000
     "state": globalstate.data.presenceData.smallImageKey
   })
 })

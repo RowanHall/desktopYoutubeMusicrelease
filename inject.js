@@ -16,6 +16,7 @@ window.onload =() => {
   var injectedSettings = false;
   var oldviewing
   var plugins;
+  var overrideviewtimer = false;
   window.songStart = Date.now();
   window.inGroup = false;
   ipc.send('pageload')
@@ -50,7 +51,7 @@ window.onload =() => {
     watching.time.watched = _ga_.playerController.playerApi.getCurrentTime()
     watching.time.length = _ga_.playerController.playerApi.getDuration()
 
-    if(inGroup && Math.abs(Date.now() - (songStart + (watching.time.watched * 1000))) > 500) {
+    if(inGroup && !overrideviewtimer && Math.abs(Date.now() - (songStart + (watching.time.watched * 1000))) > 150) {
       console.log(Math.abs(Date.now() - (songStart + (watching.time.watched * 1000))))
       _ga_.playerController.playerApi.seekTo((Date.now() - songStart) / 1000)
     }
