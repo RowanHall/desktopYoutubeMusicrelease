@@ -32,7 +32,7 @@ myEmitter.on('NEW_USER' , function(data){
 });
 
 myEmitter.on('REMOVE_USER' , function(data){
-  var emails = document.getElementsByClassName('email')
+  var emails = Array.from(document.getElementsByClassName('email'))
   var tdelete;
   emails.forEach(email => {
     if (email.innerText = data.email) {
