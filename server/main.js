@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 const fs = require('fs');
 const wss = new WebSocket.Server({ port: 42124 });
-var currentVersion = fs.readFileSync("version.txt", 'utf-8')
+var currentVersion = fs.readFileSync("../version.txt", 'utf-8')
 
 var instances = [];
 var sockets = [];
