@@ -113,20 +113,20 @@ var setupListeners = () => {
       console.log(data.state)
       if(data.state == "play") {
         console.log("SETTING STATE PLAY")
-        jsexecutewrapper(() => {
+        jsexecutewrapper((data) => {
           console.log("SETTING STATE PLAY")
           overrideviewtimer = false;
           window.songStart = data.songStart
           _ga_.playerController.playerApi.playVideo()
-        })()
+        })(data)
       }
       if(data.state == "pause") {
         console.log("SETTING STATE PAUSE")
-        jsexecutewrapper(() => {
+        jsexecutewrapper((data) => {
           console.log("SETTING STATE PAUSE")
           overrideviewtimer = true;
           _ga_.playerController.playerApi.pauseVideo()
-        })()
+        })(data)
       }
     }
   });
