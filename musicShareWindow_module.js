@@ -45,7 +45,7 @@ module.exports = {
     jsexecutewrapper((userObject) => {
       myEmitter.emit('CLEAR', userObject)
     })(userObject)
-  }
+  },
   "GET_WINDOW": () => {
     return globalData.win
   }
