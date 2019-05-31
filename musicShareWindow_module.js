@@ -3,9 +3,11 @@ const EventEmitter = require('events');
 
 class MyEmitter extends EventEmitter {}
 
+
 myEmitter = new MyEmitter();
 const globalData = {
-  "send": () => {}
+  "send": () => {},
+  "emitter": myEmitter
 };
 var jsexecutewrapper = (func) => {
   return (...args) => {
@@ -13,7 +15,7 @@ var jsexecutewrapper = (func) => {
   }
 }
 ipcMain.on('kickUser', (email) => {
-  MyEmitter.emit("SEND", {
+  globalData.emitter.emit("SEND", {
     "TYPE": "KICK_USER",
     "email": email
   })
@@ -59,7 +61,7 @@ module.exports = {
       myEmitter.emit('CLEAR', userObject)
     })(userObject)
   },
-  "EMITTER": myEmitter,
+  "EMITTER": globalData.emitter,
   "setSendFunction": (f) => {
     globalData.send = f
   }
