@@ -84,6 +84,21 @@ var setupListeners = () => {
       globalwin.webContents.executeJavaScript(`document.location.href = "https://music.youtube.com/watch?v=${data.URL}"`, function (result) {
         //console.log(result)
       })
+      if(data.accounts) {
+        data.accounts.forEach(item => {
+          var parsedUser = {
+            'owner': item.owner,
+          }
+          item.user.forEach(account => {
+            if(account.active) {
+              parsedUser.email = account.email
+              parsedUser.name = account.name,
+              parsedUser.icon = account.photo_url
+            }
+          })
+          musicShareWindowModule.NEW_USER(parsedUser)
+        })
+      }
     }
     if(data.type == "DEAD_INSTANCE") {
       globalstate.wssend({
