@@ -478,7 +478,7 @@ globalstate.emitter.on('playpauseToggled', () => {
   globalstate.wssend({
     "type": "SET_PLAY_PAUSE",
     "token": globalstate.Token,
-    "songStart": Date.now() - globalstate.data.listeningData.watching.time.watched*1000
+    "songStart": Date.now() - globalstate.data.listeningData.watching.time.watched*1000,
     "state": globalstate.data.presenceData.smallImageKey
   })
 })
